@@ -3,14 +3,9 @@ package blob
 import (
 	"golang.org/x/net/context"
 
-	//	"time"
-
-	//	"github.com/firefirestyle/go.miniprop"
-	//	"google.golang.org/appengine"
-	//	"google.golang.org/appengine/blobstore"
-	"google.golang.org/appengine/datastore"
-	//	"google.golang.org/appengine/memcache"
 	"errors"
+
+	"google.golang.org/appengine/datastore"
 
 	pp "github.com/kyorohiro/k07me/pointer"
 )

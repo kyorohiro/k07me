@@ -8,8 +8,8 @@ import (
 	miniblob "github.com/kyorohiro/k07me/blob/blob"
 	blobhandler "github.com/kyorohiro/k07me/blob/handler"
 	"github.com/kyorohiro/k07me/oauth/twitter"
-	"github.com/kyorohiro/k07me/prop"
-	"github.com/kyorohiro/k07me/session"
+	miniprop "github.com/kyorohiro/k07me/prop"
+	minisession "github.com/kyorohiro/k07me/session"
 
 	"sync"
 
@@ -20,18 +20,16 @@ import (
 )
 
 const (
-	UrlTwitterTokenUrlRedirect  = "/api/v1/twitter/tokenurl/redirect"
-	UrlTwitterTokenCallback     = "/api/v1/twitter/tokenurl/callback"
-	UrlFacebookTokenUrlRedirect = "/api/v1/facebook/tokenurl/redirect"
-	UrlFacebookTokenCallback    = "/api/v1/facebook/tokenurl/callback"
-	UrlUserGet                  = "/api/v1/user/get"
-	UrlUserFind                 = "/api/v1/user/find"
-	UrlUserBlobGet              = "/api/v1/user/getblob"
-	UrlUserRequestBlobUrl       = "/api/v1/user/requestbloburl"
-	UrlUserCallbackBlobUrl      = "/api/v1/user/callbackbloburl"
-	UrlMeLogout                 = "/api/v1/me/logout"
-	UrlMeUpdate                 = "/api/v1/me/update"
-	UrlMeGet                    = "/api/v1/me/get"
+	UrlTwitterTokenUrlRedirect = "/api/v1/twitter/tokenurl/redirect"
+	UrlTwitterTokenCallback    = "/api/v1/twitter/tokenurl/callback"
+	UrlUserGet                 = "/api/v1/user/get"
+	UrlUserFind                = "/api/v1/user/find"
+	UrlUserBlobGet             = "/api/v1/user/getblob"
+	UrlUserRequestBlobUrl      = "/api/v1/user/requestbloburl"
+	UrlUserCallbackBlobUrl     = "/api/v1/user/callbackbloburl"
+	UrlMeLogout                = "/api/v1/me/logout"
+	UrlMeUpdate                = "/api/v1/me/update"
+	UrlMeGet                   = "/api/v1/me/get"
 )
 
 type UserTemplateConfig struct {
@@ -141,13 +139,6 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 				return errors.New("errors:" + r.FormValue("tk"))
 			}
 		})
-		tmpObj.userHandlerObj.AddFacebookSession(facebook.FacebookOAuthConfig{
-			ConfigFacebookAppSecret: tmpObj.config.FacebookAppSecret,
-			ConfigFacebookAppId:     tmpObj.config.FacebookAppId,
-			SecretSign:              appengine.VersionID(ctx),
-			CallbackUrl:             "" + scheme + "://" + v + "" + UrlFacebookTokenCallback,
-			AllowInvalidSSL:         tmpObj.config.AllowInvalidSSL,
-		})
 		tmpObj.userHandlerObj.AddTwitterSession(twitter.TwitterOAuthConfig{
 			ConsumerKey:       tmpObj.config.TwitterConsumerKey,
 			ConsumerSecret:    tmpObj.config.TwitterConsumerSecret,
@@ -173,19 +164,6 @@ func (tmpObj *UserTemplate) InitUserApi() {
 		tmpObj.InitalizeTemplate(appengine.NewContext(r))
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleTwitterCallbackToken(w, r)
-	})
-
-	// facebook
-	http.HandleFunc(UrlFacebookTokenUrlRedirect, func(w http.ResponseWriter, r *http.Request) {
-		tmpObj.InitalizeTemplate(appengine.NewContext(r))
-		w.Header().Add("Access-Control-Allow-Origin", "*")
-		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleFacebookRequestToken(w, r)
-	})
-
-	http.HandleFunc(UrlFacebookTokenCallback, func(w http.ResponseWriter, r *http.Request) {
-		tmpObj.InitalizeTemplate(appengine.NewContext(r))
-		w.Header().Add("Access-Control-Allow-Origin", "*")
-		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleFacebookCallbackToken(w, r)
 	})
 
 	// user
