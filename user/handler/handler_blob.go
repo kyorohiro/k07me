@@ -66,7 +66,7 @@ func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Re
 		obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "not found token")
 		return
 	}
-	loginResult := obj.CheckLoginFromToken(r, token, true)
+	loginResult := obj.CheckLoginFromToken(r, token, false)
 	if loginResult.IsLogin == false {
 		obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "need to login")
 		return
