@@ -28,7 +28,7 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 	//
 	// check token
 	{
-		loginResult := obj.CheckLoginFromToken(r, token, true)
+		loginResult := obj.CheckLoginFromToken(r, token, false)
 		if loginResult.IsLogin == false {
 			obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
 			obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "need to login")
