@@ -72,7 +72,7 @@ func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string
 	return datastore.NewKey(ctx, obj.config.UserKind, obj.MakeUserGaeObjectKeyStringId(userName), 0, nil)
 }
 
-func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *User {
+func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
 	var userObj *User = nil
 	var err error = nil
 	for {
@@ -195,11 +195,11 @@ func (obj *User) GetProp(name string) string {
 	return p.GetString(name, "")
 }
 
+
+
 func (obj *User) SetProp(name, v string) {
 	index := -1
-	p := m.NewMiniProp()
-	p.SetString(name, v)
-	v = string(p.ToJson())
+	v =  MakePropValue(name, v)
 	for i, iv := range obj.gaeObject.PropNames {
 		if iv == name {
 			index = i
@@ -272,3 +272,4 @@ func (obj *User) SetTags(vs []string) {
 		obj.gaeObject.Tags = append(obj.gaeObject.Tags, v)
 	}
 }
+

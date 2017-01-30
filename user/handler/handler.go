@@ -6,7 +6,7 @@ import (
 	miniblob "github.com/kyorohiro/k07me/blob/blob"
 	blobhandler "github.com/kyorohiro/k07me/blob/handler"
 	"github.com/kyorohiro/k07me/oauth/twitter"
-	minipointer "github.com/kyorohiro/k07me/pointer"
+	//	minipointer "github.com/kyorohiro/k07me/pointer"
 	miniprop "github.com/kyorohiro/k07me/prop"
 	minisession "github.com/kyorohiro/k07me/session"
 	miniuser "github.com/kyorohiro/k07me/user/user"
@@ -18,8 +18,8 @@ import (
 )
 
 type UserHandler struct {
-	manager        *miniuser.UserManager
-	relayIdMgr     *minipointer.PointerManager
+	manager *miniuser.UserManager
+	//	relayIdMgr     *minipointer.PointerManager
 	sessionMgr     *minisession.SessionManager
 	blobHandler    *blobhandler.BlobHandler
 	twitterHandler *twitter.TwitterHandler
@@ -28,20 +28,15 @@ type UserHandler struct {
 }
 
 type UserHandlerManagerConfig struct {
-	RootGroup                  string
-	UserKind                   string
-	RelayIdKind                string
+	RootGroup string
+	UserKind  string
+	//	RelayIdKind                string
 	SessionKind                string
 	BlobKind                   string
 	BlobPointerKind            string
 	BlobSign                   string
 	MemcachedOnlyInBlobPointer bool
 	LengthHash                 int
-	//
-	//
-	//MasterKey     []string
-	//MasterUser    []string
-	//MasterAccount []string
 }
 
 type UserHandlerOnEvent struct {
@@ -62,9 +57,9 @@ func NewUserHandler(callbackUrl string, //
 	if config.UserKind == "" {
 		config.UserKind = "ffuser"
 	}
-	if config.RelayIdKind == "" {
-		config.RelayIdKind = config.UserKind + "-pointer"
-	}
+	//	if config.RelayIdKind == "" {
+	//		config.RelayIdKind = config.UserKind + "-pointer"
+	//	}
 	if config.SessionKind == "" {
 		config.SessionKind = config.UserKind + "-session"
 	}
@@ -81,15 +76,15 @@ func NewUserHandler(callbackUrl string, //
 
 	ret := &UserHandler{
 		manager: miniuser.NewUserManager(miniuser.UserManagerConfig{
-			UserKind:        config.UserKind,
-			UserPointerKind: config.RelayIdKind,
-			LengthHash:      config.LengthHash,
+			UserKind: config.UserKind,
+			//			UserPointerKind: config.RelayIdKind,
+			LengthHash: config.LengthHash,
 		}),
-		relayIdMgr: minipointer.NewPointerManager( //
-			minipointer.PointerManagerConfig{
-				Kind:      config.RelayIdKind,
-				RootGroup: config.RootGroup,
-			}),
+		//		relayIdMgr: minipointer.NewPointerManager( //
+		//			minipointer.PointerManagerConfig{
+		//				Kind:      config.RelayIdKind,
+		//				RootGroup: config.RootGroup,
+		//			}),
 		sessionMgr: minisession.NewSessionManager(minisession.SessionManagerConfig{
 			Kind: config.SessionKind,
 		}),
@@ -108,9 +103,9 @@ func NewUserHandler(callbackUrl string, //
 	return ret
 }
 
-func (obj *UserHandler) GetPointerManager() *minipointer.PointerManager {
-	return obj.relayIdMgr
-}
+//func (obj *UserHandler) GetPointerManager() *minipointer.PointerManager {
+//	return obj.relayIdMgr
+//}
 
 func (obj *UserHandler) GetBlobHandler() *blobhandler.BlobHandler {
 	return obj.blobHandler

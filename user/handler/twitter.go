@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"errors"
+	//	"errors"
 
 	"strconv"
 
@@ -17,17 +17,18 @@ import (
 )
 
 //
-//
+
 //
 func (obj *UserHandler) NewTwitterHandlerObj(config twitter.TwitterOAuthConfig) *twitter.TwitterHandler {
 	twitterHandlerObj := twitter.NewTwitterHandler( //
 		config, twitter.TwitterHundlerOnEvent{
-			OnFoundUser: func(w http.ResponseWriter, r *http.Request, handler *twitter.TwitterHandler, accesssToken *twitter.SendAccessTokenResult) map[string]string {
+			OnFoundUser: func(w http.ResponseWriter, r *http.Request, handler *twitter.TwitterHandler, //
+				accesssToken *twitter.SendAccessTokenResult) map[string]string {
 				ctx := appengine.NewContext(r)
 
 				//
 				//
-				_, _, userObj, err1 := obj.LoginRegistFromTwitter(ctx, //
+				userObj, err1 := obj.LoginRegistFromTwitter(ctx, //
 					accesssToken.GetScreenName(), //
 					accesssToken.GetUserID(),     //
 					accesssToken.GetOAuthToken()) //
@@ -54,71 +55,34 @@ func (obj *UserHandler) NewTwitterHandlerObj(config twitter.TwitterOAuthConfig) 
 }
 
 //
-//
-//
-func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *minipointer.Pointer, *miniuser.User, error) {
+/*
+	_, _, userObj, err1 := obj.LoginRegistFromTwitter(ctx, //
+		accesssToken.GetScreenName(), //
+		accesssToken.GetUserID(),     //
+		accesssToken.GetOAuthToken()) //
+*/
+func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (*miniuser.User, error) {
 	return obj.LoginRegistFromSNS(ctx, screenName, userId, oauthToken, minipointer.TypeTwitter)
 }
 
-func (obj *UserHandler) LoginRegistFromFacebook(ctx context.Context, screenName string, userId string, oauthToken string) (bool, *minipointer.Pointer, *miniuser.User, error) {
-	return obj.LoginRegistFromSNS(ctx, screenName, userId, oauthToken, minipointer.TypeFacebook)
-}
+func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName string, userId string, //
+	oauthToken string, snsType string) (*miniuser.User, error) {
 
-func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName string, userId string, oauthToken string, snsType string) (bool, *minipointer.Pointer, *miniuser.User, error) {
-
-	snsIdProp := miniprop.NewMiniProp()
-	snsIdProp.SetString("n", screenName)
-	snsIdProp.SetString("i", userId)
-	relayIdObj := obj.relayIdMgr.GetPointerWithNew(ctx, string(snsIdProp.ToJson()), snsType, map[string]string{"token": oauthToken})
-	needMake := false
-
-	//
-	// new userObj
-	var err error = nil
-	var userObj *miniuser.User = nil
-	var pointerObj *minipointer.Pointer = nil
-	if relayIdObj.GetValue() != "" {
-		needMake = true
-		//		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetPointerWithNewForRelayId(ctx, relayIdObj.GetValue())
-		if pointerObj.GetValue() != "" {
-			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue())
-			if err != nil {
-				userObj = nil
-			}
-		}
+	fs := obj.GetManager().FindUserFromProp(ctx, snsType, screenName, "", false)
+	var user *miniuser.User
+	if len(fs.Users) <= 0 {
+		user = obj.GetManager().NewNewUser(ctx)
+	} else {
+		user = fs.Users[0]
 	}
-	if userObj == nil {
-		userObj = obj.GetManager().NewNewUser(ctx, "")
-		userObj.SetDisplayName(screenName)
-		//		Debug(ctx, "LoginRegistFromTwitter (2) :"+userObj.GetUserName())
-		pointerObj = obj.relayIdMgr.GetPointerWithNewForRelayId(ctx, userObj.GetUserName())
-		pointerObj.SetValue(userObj.GetUserName())
-		pointerObj.SetOwner(userObj.GetUserName())
-		pointerObj.SetSign("")
-		//Debug(ctx, "LoginRegistFromTwitter :")
-		err := obj.relayIdMgr.Save(ctx, pointerObj)
-		if err != nil {
-			return needMake, nil, nil, errors.New("failed to save pointreobj : " + err.Error())
-		}
-		//
-		// set username
-		relayIdObj.SetValue(pointerObj.GetValue())
-		relayIdObj.SetOwner(userObj.GetUserName())
-	}
+	user.SetDisplayName(screenName)
+	user.SetProp(snsType, screenName)
+	privateProp := miniprop.NewMiniPropFromJson([]byte(user.GetPrivateInfo()))
+	privateProp.SetString("n", screenName)
+	privateProp.SetString("i", userId)
+	privateProp.SetString("t", oauthToken)
+	user.SetPrivateInfo(string(privateProp.ToJson()))
+	obj.GetManager().SaveUser(ctx, user)
 
-	//
-	// save relayId
-	err = obj.relayIdMgr.Save(ctx, relayIdObj)
-	if err != nil {
-		return needMake, nil, nil, errors.New("failed to save sessionobj : " + err.Error())
-	}
-
-	//
-	// save user
-	err = obj.GetManager().SaveUser(ctx, userObj)
-	if err != nil {
-		return needMake, nil, nil, errors.New("failed to save userobj : " + err.Error())
-	}
-	return needMake, relayIdObj, userObj, nil
+	return user, nil
 }

@@ -4,6 +4,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
+	m "github.com/kyorohiro/k07me/prop"
 )
 
 type UserManagerConfig struct {
@@ -37,8 +38,8 @@ func (obj *UserManager) GetUserKind() string {
 	return obj.config.UserKind
 }
 
-func (obj *UserManager) NewNewUser(ctx context.Context, sign string) *User {
-	return obj.newUserWithUserName(ctx, sign)
+func (obj *UserManager) NewNewUser(ctx context.Context) *User {
+	return obj.newUserWithUserName(ctx)
 }
 
 func (obj *UserManager) GetUserFromUserName(ctx context.Context, userName string) (*User, error) {
@@ -59,4 +60,11 @@ func (obj *UserManager) DeleteUser(ctx context.Context, userName string, sign st
 //
 func Debug(ctx context.Context, message string) {
 	log.Infof(ctx, message)
+}
+
+func MakePropValue(name, v string) string {
+	p := m.NewMiniProp()
+	p.SetString(name, v)
+	v = string(p.ToJson())
+	return v
 }

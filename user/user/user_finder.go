@@ -42,6 +42,14 @@ func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string,
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
 }
 
+func (obj *UserManager) FindUserFromProp(ctx context.Context, key string, value string, cursorSrc string, keyOnly bool) *FoundUser {
+	q := datastore.NewQuery(obj.config.UserKind)
+	v := MakePropValue(key,value)
+	q = q.Filter("Props.Value =", v) ////
+	q = q.Limit(obj.config.LimitOfFinding)
+	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
+}
+
 //
 //
 type FoundUser struct {
