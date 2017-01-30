@@ -73,6 +73,7 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 	} else {
 		outputProp.CopiedOver(miniprop.NewMiniPropFromMap(usrObj.ToMapPublic()))
 	}
+	Debug(ctx, "--cont-- "+usrObj.GetCont())
 	w.Write(outputProp.ToJson())
 	return
 }
