@@ -1,13 +1,10 @@
 package handler
 
 import (
-	"net/http"
-
-	"strings"
-
 	"errors"
-
 	"io/ioutil"
+	"net/http"
+	"strings"
 
 	miniblob "github.com/kyorohiro/k07me/blob/blob"
 	blobhandler "github.com/kyorohiro/k07me/blob/handler"
@@ -102,7 +99,7 @@ func (userMgrObj *UserHandler) OnBlobComplete(w http.ResponseWriter, r *http.Req
 		ctx := appengine.NewContext(r)
 		userName := userMgrObj.GetUserNameFromDir(dir)
 
-		userObj, userErr := userMgrObj.GetManager().GetUserFromRelayId(ctx, userName)
+		userObj, userErr := userMgrObj.GetManager().GetUserFromUserName(ctx, userName)
 		if userErr != nil {
 			outputProp.SetString("error", "not found user")
 			return userErr

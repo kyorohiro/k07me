@@ -39,7 +39,7 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 			userName = loginResult.AccessTokenObj.GetUserName()
 		}
 		if userName != loginResult.AccessTokenObj.GetUserName() {
-			usrObj, userErr := obj.GetManager().GetUserFromRelayId(ctx, loginResult.AccessTokenObj.GetUserName())
+			usrObj, userErr := obj.GetManager().GetUserFromUserName(ctx, loginResult.AccessTokenObj.GetUserName())
 			if userErr != nil {
 				obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
 				obj.HandleError(w, r, outputProp, 2002, userErr.Error())
@@ -52,7 +52,7 @@ func (obj *UserHandler) HandleUpdateInfo(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	usrObj, userErr := obj.GetManager().GetUserFromRelayId(ctx, userName)
+	usrObj, userErr := obj.GetManager().GetUserFromUserName(ctx, userName)
 	if userErr != nil {
 		obj.OnUpdateUserFailed(w, r, obj, inputProp, outputProp)
 		obj.HandleError(w, r, outputProp, 2002, userErr.Error())

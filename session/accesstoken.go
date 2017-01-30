@@ -20,7 +20,6 @@ var ErrorOnServer = errors.New("server error")
 var ErrorExtract = errors.New("failed to extract")
 
 type GaeAccessTokenItem struct {
-	RootGroup string
 	UserName  string
 	LoginTime time.Time
 
@@ -70,7 +69,6 @@ func getStringFromProp(requestPropery map[string]interface{}, key string, defaul
 //
 func (obj *AccessToken) ToJson() (string, error) {
 	v := map[string]interface{}{
-		TypeRootGroup: obj.gaeObject.RootGroup,       //
 		TypeUserName:  obj.GetUserName(),             //
 		TypeLoginTime: obj.GetLoginTime().UnixNano(), //
 		TypeLoginId:   obj.GetLoginId(),              //
@@ -158,7 +156,9 @@ func (obj *AccessToken) Logout(ctx context.Context) error {
 
 func (obj *AccessToken) Save(ctx context.Context) error {
 	_, e := datastore.Put(ctx, obj.gaeObjectKey, obj.gaeObject)
-	obj.UpdateMemcache(ctx)
+	if e != nil {
+		obj.UpdateMemcache(ctx)
+	}
 	return e
 }
 

@@ -38,7 +38,7 @@ func (obj *UserHandler) NewTwitterHandlerObj(config twitter.TwitterOAuthConfig) 
 				//
 				tokenObj, err := obj.sessionMgr.Login(ctx, //
 					userObj.GetUserName(), //
-					minisession.MakeAccessTokenConfigFromRequest(r))
+					minisession.MakeOptionInfo(r))
 				if err != nil {
 					return map[string]string{"errcode": "1"}
 				} else {
@@ -82,7 +82,7 @@ func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName strin
 		//		Debug(ctx, "LoginRegistFromTwitter (1) :"+relayIdObj.GetUserName())
 		pointerObj = obj.relayIdMgr.GetPointerWithNewForRelayId(ctx, relayIdObj.GetValue())
 		if pointerObj.GetValue() != "" {
-			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue(), pointerObj.GetSign())
+			userObj, err = obj.GetManager().GetUserFromUserName(ctx, pointerObj.GetValue())
 			if err != nil {
 				userObj = nil
 			}

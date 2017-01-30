@@ -81,7 +81,6 @@ func NewUserHandler(callbackUrl string, //
 
 	ret := &UserHandler{
 		manager: miniuser.NewUserManager(miniuser.UserManagerConfig{
-			RootGroup:       config.RootGroup,
 			UserKind:        config.UserKind,
 			UserPointerKind: config.RelayIdKind,
 			LengthHash:      config.LengthHash,
@@ -92,8 +91,7 @@ func NewUserHandler(callbackUrl string, //
 				RootGroup: config.RootGroup,
 			}),
 		sessionMgr: minisession.NewSessionManager(minisession.SessionManagerConfig{
-			Kind:      config.SessionKind,
-			RootGroup: config.RootGroup,
+			Kind: config.SessionKind,
 		}),
 		blobHandler: blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
 			RootGroup:              config.RootGroup,
@@ -134,9 +132,9 @@ func Debug(ctx context.Context, message string) {
 	log.Infof(ctx, message)
 }
 
-func (obj *UserHandler) CheckLoginFromToken(r *http.Request, token string, useIp bool) minisession.CheckLoginIdResult {
+func (obj *UserHandler) CheckLoginFromToken(r *http.Request, token string, useIp bool) minisession.CheckResult {
 	ctx := appengine.NewContext(r)
-	return obj.GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r), useIp)
+	return obj.GetSessionMgr().CheckAccessToken(ctx, token, minisession.MakeOptionInfo(r), useIp)
 }
 
 func (obj *UserHandler) HandleError(w http.ResponseWriter, r *http.Request, outputProp *miniprop.MiniProp, errorCode int, errorMessage string) {

@@ -22,16 +22,8 @@ func (userObj *User) SetUserFromsJson(ctx context.Context, source string) error 
 	return nil
 }
 
-func (userObj *User) CopyWithoutUserNameAndSign(ctx context.Context, copyObj *User) {
-	itemInfo := userObj.ToMapAll()
-	itemInfo[TypeUserName] = copyObj.GetUserName()
-	itemInfo[TypeSign] = copyObj.gaeObject.Sign
-	copyObj.SetUserFromsMap(ctx, itemInfo)
-}
-
 func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface{}) {
 	propObj := m.NewMiniPropFromMap(v)
-	userObj.gaeObject.RootGroup = propObj.GetString(TypeRootGroup, "")
 	userObj.gaeObject.DisplayName = propObj.GetString(TypeDisplayName, "")
 	userObj.gaeObject.UserName = propObj.GetString(TypeUserName, "")
 	userObj.gaeObject.Created = propObj.GetTime(TypeCreated, time.Now()) //srcCreated
@@ -52,7 +44,6 @@ func (userObj *User) SetUserFromsMap(ctx context.Context, v map[string]interface
 func (obj *User) ToMapPublic() map[string]interface{} {
 
 	return map[string]interface{}{
-		TypeRootGroup:   obj.gaeObject.RootGroup,
 		TypeDisplayName: obj.gaeObject.DisplayName,        //
 		TypeUserName:    obj.gaeObject.UserName,           //
 		TypeCreated:     obj.gaeObject.Created.UnixNano(), //

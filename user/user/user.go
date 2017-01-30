@@ -40,7 +40,6 @@ const (
 )
 
 type GaeUserItem struct {
-	RootGroup   string
 	DisplayName string
 	UserName    string
 	Created     time.Time
@@ -69,8 +68,8 @@ type User struct {
 // new object
 // ----
 
-func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string, sign string) *datastore.Key {
-	return datastore.NewKey(ctx, obj.config.UserKind, obj.MakeUserGaeObjectKeyStringId(userName, sign), 0, nil)
+func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string) *datastore.Key {
+	return datastore.NewKey(ctx, obj.config.UserKind, obj.MakeUserGaeObjectKeyStringId(userName), 0, nil)
 }
 
 func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *User {
@@ -85,7 +84,7 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *U
 		if obj.config.LengthHash >= 5 && len(userName) > obj.config.LengthHash {
 			userName = userName[:obj.config.LengthHash]
 		}
-		userObj, err = obj.GetUserFromUserName(ctx, userName, sign)
+		userObj, err = obj.GetUserFromUserName(ctx, userName)
 		if err != nil {
 			break
 		}
@@ -93,16 +92,14 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context, sign string) *U
 	return userObj
 }
 
-func (obj *UserManager) newUser(ctx context.Context, userName string, sign string) *User {
+func (obj *UserManager) newUser(ctx context.Context, userName string) *User {
 	ret := new(User)
 	ret.prop = make(map[string]map[string]interface{})
 	ret.kind = obj.config.UserKind
 	ret.gaeObject = new(GaeUserItem)
-	ret.gaeObject.RootGroup = obj.config.RootGroup
-	ret.gaeObject.Sign = sign
 	ret.gaeObject.UserName = userName
-	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName, sign)
-	Debug(ctx, "GetUserFromUserName B:"+sign+":==:"+ret.gaeObjectKey.StringID())
+	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName)
+	Debug(ctx, "GetUserFromUserName B::==:"+ret.gaeObjectKey.StringID())
 	return ret
 }
 
@@ -111,7 +108,6 @@ func (obj *UserManager) newUserFromStringID(ctx context.Context, stringId string
 	ret.prop = make(map[string]map[string]interface{})
 	ret.kind = obj.config.UserKind
 	ret.gaeObject = new(GaeUserItem)
-	ret.gaeObject.RootGroup = obj.config.RootGroup
 	ret.gaeObjectKey = datastore.NewKey(ctx, obj.config.UserKind, stringId, 0, nil)
 	return ret
 }
@@ -154,6 +150,10 @@ func (obj *User) GetCreated() time.Time {
 
 func (obj *User) GetLogined() time.Time {
 	return obj.gaeObject.Updated
+}
+
+func (obj *User) SetLogined(v time.Time) {
+	obj.gaeObject.Updated = v
 }
 
 func (obj *User) GetPublicInfo() string {

@@ -29,20 +29,14 @@ func (obj *UserManager) makeCursorSrc(founds *datastore.Iterator) string {
 
 //
 //
-func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc string, projectId string, keyOnly bool) *FoundUser {
+func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.config.UserKind)
-	if projectId != "" {
-		q = q.Filter("RootGroup =", obj.config.RootGroup)
-	}
 	q = q.Limit(obj.config.LimitOfFinding)
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)
 }
 
-func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string, projectId string, keyOnly bool) *FoundUser {
+func (obj *UserManager) FindUserWithPoint(ctx context.Context, cursorSrc string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.config.UserKind)
-	if projectId != "" {
-		q = q.Filter("RootGroup =", obj.config.RootGroup)
-	}
 	q = q.Order("-Point")
 	q = q.Limit(obj.config.LimitOfFinding)
 	return obj.FindUserFromQuery(ctx, q, cursorSrc, keyOnly)

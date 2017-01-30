@@ -14,22 +14,16 @@ func (obj *UserHandler) HandleFind(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	cursor := values.Get("cursor")
 	mode := values.Get("mode")
-	projectId := values.Get("group")
 	keyOnly := true
-	//if mode != "0" {
-	//	keyOnly = false
-	//}
 	var foundObj *user.FoundUser = nil
 	if mode == "-point" {
-		foundObj = obj.manager.FindUserWithPoint(ctx, cursor, projectId, keyOnly)
+		foundObj = obj.manager.FindUserWithPoint(ctx, cursor, keyOnly)
 	} else {
-		foundObj = obj.manager.FindUserWithNewOrder(ctx, cursor, projectId, keyOnly)
+		foundObj = obj.manager.FindUserWithNewOrder(ctx, cursor, keyOnly)
 	}
 	propObj.SetPropStringList("", "keys", foundObj.UserIds)
 	propObj.SetPropString("", "cursorOne", foundObj.CursorOne)
 	propObj.SetPropString("", "cursorNext", foundObj.CursorNext)
-	//if keyOnly == false {
-	//	// todo
-	//}
+
 	w.Write(propObj.ToJson())
 }

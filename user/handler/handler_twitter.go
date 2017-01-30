@@ -23,5 +23,5 @@ func (obj *UserHandler) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	propObj := miniprop.NewMiniPropFromJson(bodyBytes)
 	token := propObj.GetString("token", "")
 
-	obj.sessionMgr.Logout(appengine.NewContext(r), token, minisession.MakeAccessTokenConfigFromRequest(r))
+	obj.sessionMgr.Logout(appengine.NewContext(r), token, minisession.MakeOptionInfo(r))
 }

@@ -21,7 +21,7 @@ func (obj *UserHandler) HandleGetMe(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	inputProp := miniprop.NewMiniPropFromJsonReader(r.Body)
 	token := inputProp.GetString("token", "")
-	loginResult := obj.GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r), true)
+	loginResult := obj.GetSessionMgr().CheckAccessToken(ctx, token, minisession.MakeOptionInfo(r), true)
 	userName := loginResult.AccessTokenObj.GetUserName()
 	if loginResult.IsLogin == false {
 		userName = ""
@@ -42,11 +42,7 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 		return
 	}
 	if userName != "" {
-		if sign == "" {
-			usrObj, userErr = obj.GetManager().GetUserFromRelayId(ctx, userName)
-		} else {
-			usrObj, userErr = obj.GetManager().GetUserFromSign(ctx, userName, sign)
-		}
+		usrObj, userErr = obj.GetManager().GetUserFromUserName(ctx, userName)
 	} else if key != "" {
 		usrObj, userErr = obj.GetManager().GetUserFromKey(ctx, key)
 	} else {
@@ -81,6 +77,6 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 	return
 }
 
-func (obj *UserHandler) CheckLogin(r *http.Request, token string, useIp bool) minisession.CheckLoginIdResult {
-	return obj.GetSessionMgr().CheckLoginId(appengine.NewContext(r), token, minisession.MakeAccessTokenConfigFromRequest(r), useIp)
+func (obj *UserHandler) CheckLogin(r *http.Request, token string, useIp bool) minisession.CheckResult {
+	return obj.GetSessionMgr().CheckAccessToken(appengine.NewContext(r), token, minisession.MakeOptionInfo(r), useIp)
 }

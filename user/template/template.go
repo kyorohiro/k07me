@@ -95,15 +95,15 @@ func (tmpObj *UserTemplate) InitalizeTemplate(ctx context.Context) {
 	tmpObj.initOpt = nil
 }
 
-func (tmpObj *UserTemplate) CheckLogin(r *http.Request, input *miniprop.MiniProp, useIp bool) minisession.CheckLoginIdResult {
+func (tmpObj *UserTemplate) CheckLogin(r *http.Request, input *miniprop.MiniProp, useIp bool) minisession.CheckResult {
 	//	ctx := appengine.NewContext(r)
 	token := input.GetString("token", "")
 	return tmpObj.CheckLoginFromToken(r, token, useIp)
 }
 
-func (tmpObj *UserTemplate) CheckLoginFromToken(r *http.Request, token string, useIp bool) minisession.CheckLoginIdResult {
+func (tmpObj *UserTemplate) CheckLoginFromToken(r *http.Request, token string, useIp bool) minisession.CheckResult {
 	ctx := appengine.NewContext(r)
-	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckLoginId(ctx, token, minisession.MakeAccessTokenConfigFromRequest(r), useIp)
+	return tmpObj.GetUserHundlerObj(ctx).GetSessionMgr().CheckAccessToken(ctx, token, minisession.MakeOptionInfo(r), useIp)
 }
 
 func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.UserHandler {
