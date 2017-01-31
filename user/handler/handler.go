@@ -3,23 +3,21 @@ package handler
 import (
 	"net/http"
 
+	"crypto/sha1"
+
 	miniblob "github.com/kyorohiro/k07me/blob/blob"
 	blobhandler "github.com/kyorohiro/k07me/blob/handler"
 	"github.com/kyorohiro/k07me/oauth/twitter"
-	//	minipointer "github.com/kyorohiro/k07me/pointer"
 	miniprop "github.com/kyorohiro/k07me/prop"
 	minisession "github.com/kyorohiro/k07me/session"
 	miniuser "github.com/kyorohiro/k07me/user/user"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/log"
-	//
-	"crypto/sha1"
 )
 
 type UserHandler struct {
-	manager *miniuser.UserManager
-	//	relayIdMgr     *minipointer.PointerManager
+	manager        *miniuser.UserManager
 	sessionMgr     *minisession.SessionManager
 	blobHandler    *blobhandler.BlobHandler
 	twitterHandler *twitter.TwitterHandler
@@ -28,8 +26,7 @@ type UserHandler struct {
 }
 
 type UserHandlerManagerConfig struct {
-	UserKind string
-	//	RelayIdKind                string
+	UserKind                   string
 	SessionKind                string
 	BlobKind                   string
 	BlobPointerKind            string
@@ -53,9 +50,6 @@ func NewUserHandler(callbackUrl string, //
 	if config.UserKind == "" {
 		config.UserKind = "fu"
 	}
-	//	if config.RelayIdKind == "" {
-	//		config.RelayIdKind = config.UserKind + "-pointer"
-	//	}
 	if config.SessionKind == "" {
 		config.SessionKind = config.UserKind + "-session"
 	}
@@ -72,15 +66,9 @@ func NewUserHandler(callbackUrl string, //
 
 	ret := &UserHandler{
 		manager: miniuser.NewUserManager(miniuser.UserManagerConfig{
-			UserKind: config.UserKind,
-			//			UserPointerKind: config.RelayIdKind,
+			UserKind:   config.UserKind,
 			LengthHash: config.LengthHash,
 		}),
-		//		relayIdMgr: minipointer.NewPointerManager( //
-		//			minipointer.PointerManagerConfig{
-		//				Kind:      config.RelayIdKind,
-		//				RootGroup: config.RootGroup,
-		//			}),
 		sessionMgr: minisession.NewSessionManager(minisession.SessionManagerConfig{
 			Kind: config.SessionKind,
 		}),
@@ -97,10 +85,6 @@ func NewUserHandler(callbackUrl string, //
 	ret.blobHandler.AddOnBlobComplete(ret.OnBlobComplete)
 	return ret
 }
-
-//func (obj *UserHandler) GetPointerManager() *minipointer.PointerManager {
-//	return obj.relayIdMgr
-//}
 
 func (obj *UserHandler) GetBlobHandler() *blobhandler.BlobHandler {
 	return obj.blobHandler
