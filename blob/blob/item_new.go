@@ -10,13 +10,17 @@ import (
 	"google.golang.org/appengine/blobstore"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/memcache"
+	"github.com/kyorohiro/k07me/prop"
 )
 
 func (obj *BlobManager) NewBlobItem(ctx context.Context, parent string, name string, blobKey string) *BlobItem {
 	ret := new(BlobItem)
 	ret.gaeObject = new(GaeObjectBlobItem)
 	ret.gaeObject.RootGroup = obj.config.RootGroup
-	ret.gaeObject.Parent = parent
+	{
+		p := prop.NewMiniPath(parent)
+		ret.gaeObject.Parent = p.GetDir()
+	}
 	ret.gaeObject.Name = name
 	ret.gaeObject.BlobKey = blobKey
 	ret.gaeObject.Updated = time.Now()

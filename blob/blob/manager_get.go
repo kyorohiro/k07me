@@ -6,8 +6,6 @@ import (
 	"errors"
 
 	"google.golang.org/appengine/datastore"
-
-	pp "github.com/kyorohiro/k07me/pointer"
 )
 
 func (obj *BlobManager) GetBlobItemFromGaeKey(ctx context.Context, gaeKey *datastore.Key) (*BlobItem, error) {
@@ -62,35 +60,24 @@ func (obj *BlobManager) GetBlobItemFromStringId(ctx context.Context, stringId st
 	return obj.GetBlobItemFromGaeKey(ctx, key)
 }
 
-//
-// if memcachedonly == true , posssible to become pointer == null
-func (obj *BlobManager) GetBlobItemFromPointer(ctx context.Context, parent string, name string) (*BlobItem, *pp.Pointer, error) {
-	pointerObj, pointerErr := obj.pointerMgr.GetPointer(ctx, obj.MakeBlobId(parent, name), pp.TypePointer)
-	if pointerErr != nil {
-		if obj.pointerMgr.IsMemcachedOnly() == false {
-			return nil, nil, pointerErr
-		} else {
-			o, e := obj.GetBlobItemFromQuery(ctx, parent, name)
-			var p *pp.Pointer = nil
-			if e == nil {
-				p, _ = obj.SavePointer(ctx, o)
-			}
-			return o, p, e
+func (obj *BlobManager) GetBlobItemFromPointer(ctx context.Context, parent string, name string) (*BlobItem, error) {
+	sign, err := obj.LoadSignCache(ctx, parent, name)
+	if err != nil {
+		b, e := obj.GetBlobItem(ctx, parent, name, sign)
+		if e == nil {
+			return b, e
 		}
 	}
-	retObj, retErr := obj.GetBlobItem(ctx, parent, name, pointerObj.GetSign())
-	return retObj, pointerObj, retErr
+	o, e := obj.GetBlobItemFromQuery(ctx, parent, name)
+	return o, e
 }
 
 func (obj *BlobManager) GetBlobItemStringIdFromPointer(ctx context.Context, parent string, name string) (string, string, error) {
-	pointerObj, pointerErr := obj.pointerMgr.GetPointer(ctx, obj.MakeBlobId(parent, name), pp.TypePointer)
-	if pointerErr != nil {
-		if obj.pointerMgr.IsMemcachedOnly() == false {
-			return "", "", pointerErr
-		} else {
-			o, e := obj.GetBlobItemStringIdFromQuery(ctx, parent, name)
-			return o, obj.MakeBlobId(parent, name), e
-		}
+	sign, err := obj.LoadSignCache(ctx, parent, name)
+	if err != nil {
+		return obj.MakeStringId(parent, name, sign), obj.MakeBlobId(parent, name), nil
+	} else {
+		o, e := obj.GetBlobItemStringIdFromQuery(ctx, parent, name)
+		return o, obj.MakeBlobId(parent, name), e
 	}
-	return pointerObj.GetValue(), obj.MakeBlobId(parent, name), nil
 }

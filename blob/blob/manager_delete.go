@@ -1,20 +1,9 @@
 package blob
 
 import (
-	"golang.org/x/net/context"
-
-	p "github.com/kyorohiro/k07me/pointer"
 	m "github.com/kyorohiro/k07me/prop"
+	"golang.org/x/net/context"
 )
-
-func (obj *BlobManager) SavePointer(ctx context.Context, newItem *BlobItem) (*p.Pointer, error) {
-	pointerObj := obj.pointerMgr.GetPointerWithNewForRelayId(ctx, obj.MakeBlobId(newItem.GetParent(), newItem.GetName()))
-	pointerObj.SetSign(newItem.GetBlobKey())
-	pointerObj.SetValue(newItem.gaeKey.StringID())
-	pointerObj.SetOwner(newItem.gaeObject.Owner)
-	pointerErr := obj.pointerMgr.Save(ctx, pointerObj)
-	return pointerObj, pointerErr
-}
 
 func (obj *BlobManager) SaveBlobItemWithImmutable(ctx context.Context, newItem *BlobItem) error {
 	//
@@ -33,25 +22,11 @@ func (obj *BlobManager) SaveBlobItemWithImmutable(ctx context.Context, newItem *
 	//
 	//
 	blobStringId, _, currErr := obj.GetBlobItemStringIdFromPointer(ctx, newItem.GetParent(), newItem.GetName())
-	//currItem, _, currErr := obj.GetBlobItemFromPointer(ctx, newItem.GetParent(), newItem.GetName())
 
 	errSave := newItem.saveDB(ctx)
 	if errSave != nil {
 		return errSave
 	}
-
-	//
-	// pointer
-	_, pointerErr := obj.SavePointer(ctx, newItem)
-	if pointerErr != nil {
-		err := obj.DeleteBlobItemFromStringId(ctx, newItem.gaeKey.StringID())
-		if err != nil {
-			Debug(ctx, "<gomidata>"+newItem.gaeKey.StringID()+"</gomidata>")
-		}
-		return errSave
-	}
-	//
-	// delete old data
 
 	if currErr == nil {
 		err := obj.DeleteBlobItemFromStringId(ctx, blobStringId)
@@ -59,26 +34,19 @@ func (obj *BlobManager) SaveBlobItemWithImmutable(ctx context.Context, newItem *
 			Debug(ctx, "<gomidata>"+blobStringId+"</gomidata>")
 		}
 	}
+	obj.SaveSignCache(ctx, newItem.GetParent(), newItem.GetName(), newItem.GetSign())
 	return nil
 
 }
 
 func (obj *BlobManager) DeleteBlobItem(ctx context.Context, item *BlobItem) error {
+	obj.SaveSignCache(ctx, item.GetParent(), item.GetName(), "")
 	return obj.DeleteBlobItemFromStringId(ctx, item.gaeKey.StringID())
 }
-
-func (obj *BlobManager) DeletePointer(ctx context.Context, parent, name string) error {
-	return obj.GetPointerMgr().DeletePointer(ctx, obj.MakeBlobId(parent, name), p.TypePointer)
-}
-
-func (obj *BlobManager) DeleteBlobItemWithPointer(ctx context.Context, item *BlobItem) error {
-	return obj.DeleteBlobItemWithPointerFromStringId(ctx, item.gaeKey.StringID())
-}
-
-func (obj *BlobManager) DeleteBlobItemWithPointerFromStringId(ctx context.Context, stringId string) error {
-	keyInfo := obj.GetKeyInfoFromStringId(stringId)
-	obj.DeletePointer(ctx, keyInfo.Parent, keyInfo.Name)
-	return obj.DeleteBlobItemFromStringId(ctx, stringId)
+func (obj *BlobManager) DeleteBlobItemWithPointerFromStringId(ctx context.Context, blolStringId string) error {
+	idInfo := obj.GetKeyInfoFromStringId(blolStringId)
+	obj.SaveSignCache(ctx, idInfo.Parent, idInfo.Name, "")
+	return obj.DeleteBlobItemFromStringId(ctx, blolStringId)
 }
 
 //
@@ -101,7 +69,7 @@ func (obj *BlobManager) DeleteBlobItemsWithPointerAtRecursiveMode(ctx context.Co
 			}
 			blobObj, blobErr := obj.GetBlobItem(ctx, keyInfo.Parent, keyInfo.Name, keyInfo.Sign)
 			if blobErr == nil {
-				obj.DeleteBlobItemWithPointer(ctx, blobObj)
+				obj.DeleteBlobItem(ctx, blobObj)
 			}
 		}
 	}
@@ -109,7 +77,7 @@ func (obj *BlobManager) DeleteBlobItemsWithPointerAtRecursiveMode(ctx context.Co
 		keyInfo := obj.GetKeyInfoFromStringId(v)
 		blobObj, blobErr := obj.GetBlobItem(ctx, keyInfo.Parent, keyInfo.Name, keyInfo.Sign)
 		if blobErr == nil {
-			obj.DeleteBlobItemWithPointer(ctx, blobObj)
+			obj.DeleteBlobItem(ctx, blobObj)
 		}
 	}
 	return nil

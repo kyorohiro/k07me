@@ -38,7 +38,7 @@ func (obj *BlobHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, ke
 	}
 	//
 	ctx := appengine.NewContext(r)
-	blobObj, _, err := obj.manager.GetBlobItemFromPointer(ctx, dir, file)
+	blobObj, err := obj.manager.GetBlobItemFromPointer(ctx, dir, file)
 	if err != nil {
 		obj.OnGetFailed(w, r, outputPropObj, obj, nil)
 		HandleError(w, r, outputPropObj, ErrorCodeAtGetRequestFindBlobItem, err.Error())
