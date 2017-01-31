@@ -53,11 +53,11 @@ func (obj *UserHandler) MakeDir(userName string, dir string) string {
 }
 
 func (obj *UserHandler) HandleBlobRequestToken(w http.ResponseWriter, r *http.Request) {
-
-	//
-	//
 	params, _ := ioutil.ReadAll(r.Body)
-	inputPropObj := miniprop.NewMiniPropFromJson(params)
+	obj.HandleBlobRequestTokenBase(w,r,miniprop.NewMiniPropFromJson(params))
+}
+
+func (obj *UserHandler) HandleBlobRequestTokenBase(w http.ResponseWriter, r *http.Request,inputPropObj *miniprop.MiniProp) {
 	token := inputPropObj.GetString("token", "")
 	if token == "" {
 		obj.HandleError(w, r, miniprop.NewMiniProp(), 2001, "not found token")

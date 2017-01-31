@@ -13,6 +13,8 @@ import (
 
 	"sync"
 
+	"io/ioutil"
+
 	userhundler "github.com/kyorohiro/k07me/user/handler"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
@@ -118,14 +120,7 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 				MemcachedOnlyInBlobPointer: tmpObj.config.MemcachedOnlyInBlobPointer,
 				LengthHash:                 9,
 			})
-		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobRequest(
-			func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (map[string]string, error) {
-				ret := tmpObj.CheckLogin(r, input, true)
-				if ret.IsLogin == false {
-					return map[string]string{}, errors.New("Failed in token check")
-				}
-				return map[string]string{"tk": ret.AccessTokenObj.GetLoginId()}, nil
-			})
+
 		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobComplete(func(w http.ResponseWriter, r *http.Request, p *miniprop.MiniProp, h *blobhandler.BlobHandler, i *miniblob.BlobItem) error {
 			pp := tmpObj.CheckLoginFromToken(r, r.FormValue("tk"), false)
 			if pp.IsLogin == true {
@@ -177,7 +172,15 @@ func (tmpObj *UserTemplate) InitUserApi() {
 	http.HandleFunc(UrlUserRequestBlobUrl, func(w http.ResponseWriter, r *http.Request) {
 		tmpObj.InitalizeTemplate(appengine.NewContext(r))
 		w.Header().Add("Access-Control-Allow-Origin", "*")
-		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobRequestToken(w, r)
+		params, _ := ioutil.ReadAll(r.Body)
+		input := miniprop.NewMiniPropFromJson(params)
+		ret := tmpObj.CheckLogin(r, input, true)
+		if ret.IsLogin == false {
+			tmpObj.userHandlerObj.HandleError(w, r, miniprop.NewMiniProp(), 1001, "Failed in token check")
+			return
+		} else {
+			tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobRequestToken(w, r)
+		}
 	})
 
 	http.HandleFunc(UrlUserCallbackBlobUrl, func(w http.ResponseWriter, r *http.Request) {
