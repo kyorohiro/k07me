@@ -29,6 +29,13 @@ func (obj *UserManager) makeCursorSrc(founds *datastore.Iterator) string {
 
 //
 //
+func (obj *UserManager) FindUserWithUserName(ctx context.Context, userName string, keyOnly bool) *FoundUser {
+	q := datastore.NewQuery(obj.config.UserKind)
+	q = q.Filter("UserName =", userName) ////
+	q = q.Limit(obj.config.LimitOfFinding)
+	return obj.FindUserFromQuery(ctx, q, "", keyOnly)
+}
+
 func (obj *UserManager) FindUserWithNewOrder(ctx context.Context, cursorSrc string, keyOnly bool) *FoundUser {
 	q := datastore.NewQuery(obj.config.UserKind)
 	q = q.Limit(obj.config.LimitOfFinding)

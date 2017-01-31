@@ -68,8 +68,8 @@ type User struct {
 // new object
 // ----
 
-func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName string) *datastore.Key {
-	return datastore.NewKey(ctx, obj.config.UserKind, obj.MakeUserGaeObjectKeyStringId(userName), 0, nil)
+func (obj *UserManager) newUserGaeObjectKey(ctx context.Context, userName, sign string) *datastore.Key {
+	return datastore.NewKey(ctx, obj.config.UserKind, obj.MakeUserGaeObjectKeyStringId(userName, sign), 0, nil)
 }
 
 func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
@@ -84,7 +84,7 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
 		if obj.config.LengthHash >= 5 && len(userName) > obj.config.LengthHash {
 			userName = userName[:obj.config.LengthHash]
 		}
-		userObj, err = obj.GetUserFromUserName(ctx, userName)
+		userObj, err = obj.newUser(ctx, userName, strconv.FormatInt(now,16))
 		if err != nil {
 			break
 		}
@@ -92,14 +92,23 @@ func (obj *UserManager) newUserWithUserName(ctx context.Context) *User {
 	return userObj
 }
 
-func (obj *UserManager) newUser(ctx context.Context, userName string) *User {
+func (obj *UserManager) newUser(ctx context.Context, userName string, sign string) (*User, error) {
 	ret := new(User)
 	ret.prop = make(map[string]map[string]interface{})
 	ret.kind = obj.config.UserKind
 	ret.gaeObject = new(GaeUserItem)
 	ret.gaeObject.UserName = userName
-	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName)
-	Debug(ctx, "GetUserFromUserName B::==:"+ret.gaeObjectKey.StringID())
+	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, userName, sign)
+	e := ret.loadFromDB(ctx)
+	return ret, e
+}
+
+func (obj *UserManager) cloneUser(ctx context.Context, user *User) *User {
+	ret := new(User)
+	now := time.Now().UnixNano()
+	ret.gaeObject = new(GaeUserItem)
+	ret.SetUserFromsMap(ctx, user.ToMapAll())
+	ret.gaeObjectKey = obj.newUserGaeObjectKey(ctx, ret.GetUserName(), strconv.FormatInt(now, 36))
 	return ret
 }
 
@@ -195,11 +204,9 @@ func (obj *User) GetProp(name string) string {
 	return p.GetString(name, "")
 }
 
-
-
 func (obj *User) SetProp(name, v string) {
 	index := -1
-	v =  MakePropValue(name, v)
+	v = MakePropValue(name, v)
 	for i, iv := range obj.gaeObject.PropNames {
 		if iv == name {
 			index = i
@@ -272,4 +279,3 @@ func (obj *User) SetTags(vs []string) {
 		obj.gaeObject.Tags = append(obj.gaeObject.Tags, v)
 	}
 }
-

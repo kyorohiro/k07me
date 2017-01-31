@@ -2,9 +2,6 @@ package handler
 
 import (
 	"net/http"
-
-	//	"errors"
-
 	"strconv"
 
 	"github.com/kyorohiro/k07me/oauth/twitter"
@@ -54,13 +51,7 @@ func (obj *UserHandler) NewTwitterHandlerObj(config twitter.TwitterOAuthConfig) 
 	return twitterHandlerObj
 }
 
-//
-/*
-	_, _, userObj, err1 := obj.LoginRegistFromTwitter(ctx, //
-		accesssToken.GetScreenName(), //
-		accesssToken.GetUserID(),     //
-		accesssToken.GetOAuthToken()) //
-*/
+
 func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (*miniuser.User, error) {
 	return obj.LoginRegistFromSNS(ctx, screenName, userId, oauthToken, minipointer.TypeTwitter)
 }

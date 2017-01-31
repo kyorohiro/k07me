@@ -5,6 +5,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	m "github.com/kyorohiro/k07me/prop"
+	"errors"
 )
 
 type UserManagerConfig struct {
@@ -43,17 +44,24 @@ func (obj *UserManager) NewNewUser(ctx context.Context) *User {
 }
 
 func (obj *UserManager) GetUserFromUserName(ctx context.Context, userName string) (*User, error) {
-	userObj := obj.newUser(ctx, userName)
-	e := userObj.loadFromDB(ctx)
-	return userObj, e
+	foundUser := obj.FindUserWithUserName(ctx, userName, false);
+	if len(foundUser.Users) == 0 {
+		return nil, errors.New("Not found "+userName)
+	}
+	return foundUser.Users[0], nil
 }
 
 func (obj *UserManager) SaveUser(ctx context.Context, userObj *User) error {
-	return userObj.pushToDB(ctx)
+	nextUser :=obj.cloneUser(ctx, userObj)
+	e := nextUser.pushToDB(ctx)
+	if e == nil {
+		datastore.Delete(ctx, userObj.gaeObjectKey)
+	}
+	return e
 }
 
 func (obj *UserManager) DeleteUser(ctx context.Context, userName string, sign string) error {
-	gaeKey := obj.newUserGaeObjectKey(ctx, userName)
+	gaeKey := obj.newUserGaeObjectKey(ctx, userName, sign)
 	return datastore.Delete(ctx, gaeKey)
 }
 
