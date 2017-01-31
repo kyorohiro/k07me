@@ -15,11 +15,6 @@ func (obj *BlobHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	//
 	//
-	reqErr := obj.OnDeleteRequest(w, r, outputPropObj, obj)
-	if reqErr != nil {
-		HandleError(w, r, outputPropObj, ErrorCodeAtDeleteRequestCheck, reqErr.Error())
-		return
-	}
 
 	//
 	//
@@ -27,17 +22,14 @@ func (obj *BlobHandler) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	//	obj.manager.DeleteBlobItemWithPointerFromStringId(ctx, obj.manager.MakeStringId())
 	//	blobObj, _, err := obj.manager.GetBlobItemFromPointer(ctx, dir, file)
 	if err != nil {
-		obj.OnDeleteFailed(w, r, outputPropObj, obj, nil)
 		HandleError(w, r, outputPropObj, ErrorCodeAtDeleteRequestFindBlobItem, err.Error())
 		return
 	}
 	errDelete := obj.manager.DeleteBlobItemWithPointerFromStringId(ctx, blolStringId)
 	if errDelete != nil {
-		obj.OnDeleteFailed(w, r, outputPropObj, obj, nil)
 		HandleError(w, r, outputPropObj, ErrorCodeAtDeleteRequestDeleteBlobItem, err.Error())
 		return
 	} else {
-		obj.OnDeleteSuccess(w, r, outputPropObj, obj, nil)
 		w.Write(outputPropObj.ToJson())
 		return
 	}
