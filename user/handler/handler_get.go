@@ -35,25 +35,17 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 	var userErr error = nil
 
 	outputProp := miniprop.NewMiniProp()
-	reqErr := obj.OnGetUserRequest(w, r, obj, outputProp)
-	if reqErr != nil {
-		obj.OnGetUserFailed(w, r, obj, outputProp)
-		obj.HandleError(w, r, outputProp, 2001, reqErr.Error())
-		return
-	}
 	if userName != "" {
 		usrObj, userErr = obj.GetManager().GetUserFromUserName(ctx, userName)
 	} else if key != "" {
 		usrObj, userErr = obj.GetManager().GetUserFromKey(ctx, key)
 	} else {
-		obj.OnGetUserFailed(w, r, obj, outputProp)
 		obj.HandleError(w, r, outputProp, 2002, "wrong request")
 		return
 	}
 
 	if userErr != nil {
-		obj.OnGetUserFailed(w, r, obj, outputProp)
-		obj.HandleError(w, r, outputProp, 2002, reqErr.Error())
+		obj.HandleError(w, r, outputProp, 2002, userErr.Error())
 		return
 	}
 	//
@@ -62,12 +54,6 @@ func (obj *UserHandler) HandleGetBase(w http.ResponseWriter, r *http.Request, us
 		w.Header().Set("Cache-Control", "public, max-age=2592000")
 	}
 
-	errSuc := obj.OnGetUserSuccess(w, r, obj, usrObj, outputProp)
-	if errSuc != nil {
-		obj.OnGetUserFailed(w, r, obj, outputProp)
-		obj.HandleError(w, r, outputProp, 2002, errSuc.Error())
-		return
-	}
 	if includePrivate == true {
 		outputProp.CopiedOver(miniprop.NewMiniPropFromMap(usrObj.ToMapAll()))
 	} else {
