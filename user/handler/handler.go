@@ -28,8 +28,7 @@ type UserHandler struct {
 }
 
 type UserHandlerManagerConfig struct {
-	RootGroup string
-	UserKind  string
+	UserKind string
 	//	RelayIdKind                string
 	SessionKind                string
 	BlobKind                   string
@@ -51,11 +50,8 @@ type UserHandlerOnEvent struct {
 
 func NewUserHandler(callbackUrl string, //
 	config UserHandlerManagerConfig) *UserHandler {
-	if config.RootGroup == "" {
-		config.RootGroup = "ffstyle"
-	}
 	if config.UserKind == "" {
-		config.UserKind = "ffuser"
+		config.UserKind = "fu"
 	}
 	//	if config.RelayIdKind == "" {
 	//		config.RelayIdKind = config.UserKind + "-pointer"
@@ -70,7 +66,7 @@ func NewUserHandler(callbackUrl string, //
 		config.BlobPointerKind = config.UserKind + "-blob-pointer"
 	}
 	if config.BlobSign == "" {
-		config.BlobSign = string(sha1.New().Sum([]byte("" + config.RootGroup + "&" + config.UserKind)))
+		config.BlobSign = string(sha1.New().Sum([]byte("" + config.UserKind)))
 	}
 	//
 
@@ -89,7 +85,6 @@ func NewUserHandler(callbackUrl string, //
 			Kind: config.SessionKind,
 		}),
 		blobHandler: blobhandler.NewBlobHandler(callbackUrl, config.BlobSign, miniblob.BlobManagerConfig{
-			RootGroup:              config.RootGroup,
 			Kind:                   config.BlobKind,
 			PointerKind:            config.BlobPointerKind,
 			CallbackUrl:            callbackUrl,

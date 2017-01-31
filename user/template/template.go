@@ -33,7 +33,6 @@ const (
 )
 
 type UserTemplateConfig struct {
-	GroupName       string
 	KindBaseName    string
 	PrivateKey      string
 	AllowInvalidSSL bool
@@ -61,9 +60,6 @@ type UserTemplate struct {
 }
 
 func NewUserTemplate(config UserTemplateConfig) *UserTemplate {
-	if config.GroupName == "" {
-		config.GroupName = "FFS"
-	}
 	if config.KindBaseName == "" {
 		config.KindBaseName = "FFSUser"
 	}
@@ -117,7 +113,6 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 
 		tmpObj.userHandlerObj = userhundler.NewUserHandler(UrlUserCallbackBlobUrl,
 			userhundler.UserHandlerManagerConfig{ //
-				RootGroup:                  tmpObj.config.GroupName,
 				UserKind:                   tmpObj.config.KindBaseName,
 				BlobSign:                   tmpObj.config.PrivateKey,
 				MemcachedOnlyInBlobPointer: tmpObj.config.MemcachedOnlyInBlobPointer,

@@ -17,3 +17,11 @@ indexes:
   - name: RootGroup
   - name: Updated
     direction: desc
+
+- kind: fu-blob
+  properties:
+  - name: Name
+  - name: Parent
+  - name: RootGroup
+  - name: Updated
+    direction: desc
