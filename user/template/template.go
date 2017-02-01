@@ -3,10 +3,6 @@ package template
 import (
 	"net/http"
 
-	"errors"
-
-	miniblob "github.com/kyorohiro/k07me/blob/blob"
-	blobhandler "github.com/kyorohiro/k07me/blob/handler"
 	"github.com/kyorohiro/k07me/oauth/twitter"
 	miniprop "github.com/kyorohiro/k07me/prop"
 	minisession "github.com/kyorohiro/k07me/session"
@@ -121,14 +117,6 @@ func (tmpObj *UserTemplate) GetUserHundlerObj(ctx context.Context) *userhundler.
 				LengthHash:                 9,
 			})
 
-		tmpObj.userHandlerObj.GetBlobHandler().AddOnBlobComplete(func(w http.ResponseWriter, r *http.Request, p *miniprop.MiniProp, h *blobhandler.BlobHandler, i *miniblob.BlobItem) error {
-			pp := tmpObj.CheckLoginFromToken(r, r.FormValue("tk"), false)
-			if pp.IsLogin == true {
-				return nil
-			} else {
-				return errors.New("errors:" + r.FormValue("tk"))
-			}
-		})
 		tmpObj.userHandlerObj.AddTwitterSession(twitter.TwitterOAuthConfig{
 			ConsumerKey:       tmpObj.config.TwitterConsumerKey,
 			ConsumerSecret:    tmpObj.config.TwitterConsumerSecret,
@@ -175,17 +163,20 @@ func (tmpObj *UserTemplate) InitUserApi() {
 		params, _ := ioutil.ReadAll(r.Body)
 		input := miniprop.NewMiniPropFromJson(params)
 		ret := tmpObj.CheckLogin(r, input, true)
+		Debug(appengine.NewContext(r), "(1) ---- ")
+
 		if ret.IsLogin == false {
 			tmpObj.userHandlerObj.HandleError(w, r, miniprop.NewMiniProp(), 1001, "Failed in token check")
 			return
 		} else {
-			tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobRequestToken(w, r)
+			tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobRequestTokenBase(w, r, input)
 		}
 	})
 
 	http.HandleFunc(UrlUserCallbackBlobUrl, func(w http.ResponseWriter, r *http.Request) {
 		tmpObj.InitalizeTemplate(appengine.NewContext(r))
 		w.Header().Add("Access-Control-Allow-Origin", "*")
+		Debug(appengine.NewContext(r), "(2) ---- ")
 		tmpObj.GetUserHundlerObj(appengine.NewContext(r)).HandleBlobUpdated(w, r)
 	})
 

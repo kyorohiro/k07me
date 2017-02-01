@@ -63,7 +63,7 @@ func (obj *BlobHandler) HandleUploaded(w http.ResponseWriter, r *http.Request) {
 		HandleError(w, r, outputPropObj, ErrorCodeAtBlobCheckCallback, "kv time error")
 		return
 	}
-
+	Debug(appengine.NewContext(r), "(3) ---- ")
 	//
 	ctx := appengine.NewContext(r)
 	newItem := obj.manager.NewBlobItem(ctx, res.DirName, res.FileName, res.BlobKey)
@@ -74,7 +74,7 @@ func (obj *BlobHandler) HandleUploaded(w http.ResponseWriter, r *http.Request) {
 		HandleError(w, r, outputPropObj, ErrorCodeAtBlobSaveBlobItem, err2.Error())
 		return
 	}
-
+	Debug(appengine.NewContext(r), "(4) ---- ")
 	err3 := obj.OnBlobComplete(w, r, outputPropObj, obj, newItem)
 	if err3 != nil {
 		obj.GetManager().DeleteBlobItem(ctx, newItem)
