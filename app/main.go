@@ -4,10 +4,17 @@ import (
 	"bytes"
 	"net/http"
 
+	arTm "github.com/kyorohiro/k07me/article/template"
 	usTm "github.com/kyorohiro/k07me/user/template"
 )
 
 var userTemplate = usTm.NewUserTemplate(userConfig)
+var userCommentsTemp *arTm.ArtTemplate = arTm.NewArtTemplate(
+	arTm.ArtTemplateConfig{
+		GroupName:                  "Main",
+		KindBaseName:               "FFArt",
+		MemcachedOnlyInBlobPointer: true,
+	}, userTemplate.GetUserHundlerObj)
 
 func init() {
 	var buffer *bytes.Buffer = bytes.NewBufferString("")
@@ -18,6 +25,7 @@ func init() {
 	buffer.WriteString("</body></html>")
 
 	userTemplate.InitUserApi()
+	userCommentsTemp.InitArtApi()
 	http.Handle("/", http.FileServer(http.Dir("web")))
 
 }
