@@ -10,6 +10,14 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: FFArt-blob
+  properties:
+  - name: Name
+  - name: Parent
+  - name: RootGroup
+  - name: Updated
+    direction: desc
+
 - kind: FFUser-blob
   properties:
   - name: Name
