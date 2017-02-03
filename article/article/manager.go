@@ -116,6 +116,10 @@ func (obj *ArticleManager) SaveUsrWithImmutable(ctx context.Context, artObj *Art
 	return nextArObj, nil
 }
 
+func (obj *ArticleManager) GetLimitOfFinding() int {
+	return obj.config.LimitOfFinding
+}
+
 func Debug(ctx context.Context, message string) {
 	log.Infof(ctx, message)
 }

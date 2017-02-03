@@ -6,10 +6,7 @@ import (
 	"google.golang.org/appengine/datastore"
 )
 
-/*
-https://cloud.google.com/appengine/docs/go/config/indexconfig#updating_indexes
-
-*/
+// https://cloud.google.com/appengine/docs/go/config/indexconfig#updating_indexes
 
 type FoundArticles struct {
 	Articles    []*Article
@@ -18,38 +15,17 @@ type FoundArticles struct {
 	CursorNext  string
 }
 
+/*
 func (obj *ArticleManager) FindArticleFromUserName(ctx context.Context, userName string, cursorSrc string, keyOnly bool) *FoundArticles {
 	q := datastore.NewQuery(obj.config.KindArticle)
 	q = q.Filter("UserName =", userName) ////
 	q = q.Order("-Updated").Limit(obj.config.LimitOfFinding)
 	return obj.FindArticleFromQuery(ctx, q, cursorSrc, keyOnly)
-}
+}*/
 
 func (obj *ArticleManager) FindArticleFromArticleId(ctx context.Context, articleId string, cursorSrc string, keyOnly bool) *FoundArticles {
 	q := datastore.NewQuery(obj.config.KindArticle)
-	q = q.Filter("ArticleId =", articleId) ////
-	q = q.Order("-Updated").Limit(obj.config.LimitOfFinding)
-	return obj.FindArticleFromQuery(ctx, q, cursorSrc, keyOnly)
-}
-
-func (obj *ArticleManager) FindArticleFromTag(ctx context.Context, tags []string, cursorSrc string, keyOnly bool) *FoundArticles {
-	q := datastore.NewQuery(obj.config.KindArticle)
-	for _, tag := range tags {
-		q = q.Filter("Tags.Tag =", tag) ////
-	}
-	q = q.Order("-Updated").Limit(obj.config.LimitOfFinding)
-	return obj.FindArticleFromQuery(ctx, q, cursorSrc, keyOnly)
-}
-
-func (obj *ArticleManager) FindArticleFromProp(ctx context.Context, props map[string]string, cursorSrc string, keyOnly bool) *FoundArticles {
-	q := datastore.NewQuery(obj.config.KindArticle)
-	for k, v := range props {
-		p := miniprop.NewMiniProp()
-		p.SetString(k, v)
-		v := string(p.ToJson())
-		q = q.Filter("Props.Value =", v) ////
-	}
-	q = q.Order("-Updated").Limit(obj.config.LimitOfFinding)
+	q = q.Filter("ArticleId =", articleId)
 	return obj.FindArticleFromQuery(ctx, q, cursorSrc, keyOnly)
 }
 
@@ -114,4 +90,54 @@ func (obj *ArticleManager) makeCursorSrc(founds *datastore.Iterator) string {
 	} else {
 		return ""
 	}
+}
+
+//
+//
+//
+type ArtQuery struct {
+	q *datastore.Query
+}
+
+func (obj *ArticleManager) NewArtQuery() *ArtQuery {
+	return &ArtQuery{
+		q: datastore.NewQuery(obj.config.KindArticle),
+	}
+
+}
+
+func (obj *ArtQuery) GetQuery() *datastore.Query {
+	return obj.q
+}
+
+func (obj *ArtQuery) WithProp(ctx context.Context, props map[string]string) *ArtQuery {
+	for k, v := range props {
+		p := miniprop.NewMiniProp()
+		p.SetString(k, v)
+		v := string(p.ToJson())
+		obj.q = obj.q.Filter("Props.Value =", v) ////
+	}
+	return obj
+}
+
+func (obj *ArtQuery) WithTags(ctx context.Context, tags []string) *ArtQuery {
+	for _, tag := range tags {
+		obj.q = obj.q.Filter("Tags.Tag =", tag) ////
+	}
+	return obj
+}
+
+func (obj *ArtQuery) WithUserName(ctx context.Context, userName string) *ArtQuery {
+	obj.q = obj.q.Filter("UserName =", userName)
+	return obj
+}
+
+func (obj *ArtQuery) WithUpdateMinus(ctx context.Context) *ArtQuery {
+	obj.q = obj.q.Order("-Updated")
+	return obj
+}
+
+func (obj *ArtQuery) WithLimitOfFinding(ctx context.Context, limitOfFinding int) *ArtQuery {
+	obj.q = obj.q.Limit(limitOfFinding)
+	return obj
 }

@@ -31,19 +31,25 @@ func (obj *ArticleHandler) HandleFindBase(w http.ResponseWriter, r *http.Request
 	propObj := miniprop.NewMiniProp()
 	ctx := appengine.NewContext(r)
 	var foundObj *article.FoundArticles
-	//if tag != "" {
-	//	obj.HandleFindTagBase(w, r, cursor, tag)
-	//} else {
-	///Debug(ctx, ">>>>>>>>>>>>target ="+target)
+	//
+	//
+	//
+	manager := obj.GetManager()
+	q := manager.NewArtQuery()
 	if len(tags) > 0 {
-		foundObj = obj.GetManager().FindArticleFromTag(ctx, tags, cursor, true)
-	} else if userName != "" {
-		foundObj = obj.GetManager().FindArticleFromUserName(ctx, userName, cursor, true)
-	} else if len(props) > 0 {
-		foundObj = obj.GetManager().FindArticleFromProp(ctx, props, cursor, true)
-	} else {
-		foundObj = obj.GetManager().FindArticleWithNewOrder(ctx, cursor, true)
+		q.WithTags(ctx, tags)
 	}
+
+	if userName != "" {
+		q.WithUserName(ctx, userName)
+	}
+
+	if len(props) > 0 {
+		q.WithProp(ctx, props)
+	}
+	q.WithLimitOfFinding(ctx, manager.GetLimitOfFinding())
+	foundObj = obj.GetManager().FindArticleFromQuery(ctx, q.GetQuery(), cursor, true)
+
 	propObj.SetPropStringList("", "keys", foundObj.ArticleKeys)
 	propObj.SetPropString("", "cursorOne", foundObj.CursorOne)
 	propObj.SetPropString("", "cursorNext", foundObj.CursorNext)
