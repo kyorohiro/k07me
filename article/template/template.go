@@ -179,10 +179,11 @@ func (tmpObj *ArtTemplate) InitArtApi() {
 		ctx := appengine.NewContext(r)
 		tmpObj.InitalizeTemplate(ctx)
 		propObj := miniprop.NewMiniPropFromJsonReader(r.Body)
-		loginInfo := tmpObj.CheckLogin(r, propObj.GetString("token", ""), true)
-		if loginInfo.IsLogin == false {
-			tmpObj.GetArtHundlerObj(ctx).HandleError(w, r, nil, 4001, "failed to login")
-		} else {
+		//		loginInfo := tmpObj.CheckLogin(r, propObj.GetString("token", ""), false)
+		//		if loginInfo.IsLogin == false {
+		//			tmpObj.GetArtHundlerObj(ctx).HandleError(w, r, nil, 4001, "failed to login")
+		//		} else
+		{
 			tmpObj.GetArtHundlerObj(ctx).HandleDeleteBaseWithFile(w, r, propObj.GetString("articleId", ""), propObj)
 		}
 	})
