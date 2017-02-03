@@ -24,6 +24,13 @@ indexes:
   - name: Updated
     direction: desc
 
+- kind: FFArt-blob
+  properties:
+  - name: Parent
+  - name: RootGroup
+  - name: Updated
+    direction: desc
+
 - kind: FFUser-blob
   properties:
   - name: Name
