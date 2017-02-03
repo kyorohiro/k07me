@@ -36,7 +36,6 @@ type Article struct {
 }
 
 const (
-	TypeRootGroup  = "RootGroup"
 	TypeUserName   = "UserName"
 	TypeTitle      = "Title"
 	TypeTag        = "Tag"
@@ -173,7 +172,6 @@ func (obj *Article) SetPoint(v float64) {
 
 //
 //
-
 func (obj *Article) GetLat() float64 {
 	return obj.gaeObject.Lat
 }
@@ -190,6 +188,7 @@ func (obj *Article) SetLng(v float64) {
 	obj.gaeObject.Lng = v
 }
 
+//
 //
 func (obj *Article) GetProp(name string) string {
 	index := -1

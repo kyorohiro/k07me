@@ -13,17 +13,9 @@ import (
 func (obj *ArticleHandler) HandleDeleteBaseWithFile(w http.ResponseWriter, r *http.Request, articleId string, inputObj *miniprop.MiniProp) {
 	ctx := appengine.NewContext(r)
 	outputObj := miniprop.NewMiniProp()
-	//inputObj := miniprop.NewMiniPropFromJsonReader(r.Body)
-	//	articleId := inputObj.GetString("articleId", "")
-	reqCheckErr := obj.OnDeleteArtRequest(w, r, obj, inputObj, outputObj)
-	if reqCheckErr != nil {
-		obj.OnDeleteArtFailed(w, r, obj, inputObj, outputObj)
-		obj.HandleError(w, r, outputObj, 2001, reqCheckErr.Error())
-		return
-	}
+
 	deleteFileErr := obj.GetBlobHandler().GetManager().DeleteBlobItemsWithPointerAtRecursiveMode(appengine.NewContext(r), obj.MakePath(articleId, ""))
 	if deleteFileErr != nil {
-		obj.OnDeleteArtFailed(w, r, obj, inputObj, outputObj)
 		obj.HandleError(w, r, outputObj, 2002, deleteFileErr.Error())
 		return
 	}
@@ -33,6 +25,5 @@ func (obj *ArticleHandler) HandleDeleteBaseWithFile(w http.ResponseWriter, r *ht
 		obj.HandleError(w, r, outputObj, ErrorCodeNotFoundArticleId, "not found article")
 		return
 	}
-	obj.OnDeleteArtSuccess(w, r, obj, inputObj, outputObj)
 	w.WriteHeader(http.StatusOK)
 }

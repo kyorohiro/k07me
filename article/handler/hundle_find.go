@@ -44,7 +44,7 @@ func (obj *ArticleHandler) HandleFindBase(w http.ResponseWriter, r *http.Request
 	} else {
 		foundObj = obj.GetManager().FindArticleWithNewOrder(ctx, cursor, true)
 	}
-	propObj.SetPropStringList("", "keys", foundObj.ArticleIds)
+	propObj.SetPropStringList("", "keys", foundObj.ArticleKeys)
 	propObj.SetPropString("", "cursorOne", foundObj.CursorOne)
 	propObj.SetPropString("", "cursorNext", foundObj.CursorNext)
 	w.Write(propObj.ToJson())

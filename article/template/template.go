@@ -1,12 +1,9 @@
 package template
 
 import (
-	"errors"
 	"net/http"
 
-	"github.com/kyorohiro/k07me/article/article"
 	arthundler "github.com/kyorohiro/k07me/article/handler"
-	//	blobhandler "github.com/kyorohiro/k07me/blob/handler"
 	miniprop "github.com/kyorohiro/k07me/prop"
 	minisession "github.com/kyorohiro/k07me/session"
 	userHandler "github.com/kyorohiro/k07me/user/handler"
@@ -103,37 +100,6 @@ func (tmpObj *ArtTemplate) GetArtHundlerObj(ctx context.Context) *arthundler.Art
 				MemcachedOnly:   tmpObj.config.MemcachedOnlyInBlobPointer,
 				LengthHash:      10,
 			})
-		tmpObj.artHandlerObj.AddOnNewBeforeSave(func(w http.ResponseWriter, r *http.Request, handler *arthundler.ArticleHandler, artObj *article.Article, input *miniprop.MiniProp, output *miniprop.MiniProp) error {
-			ret := tmpObj.CheckLogin(r, input.GetString("token", ""), true)
-			if ret.IsLogin == false {
-				return errors.New("Failed in token check ")
-			} else {
-				artObj.SetUserName(ret.AccessTokenObj.GetUserName())
-				return nil
-			}
-		})
-		tmpObj.artHandlerObj.AddOnUpdateRequest(func(w http.ResponseWriter, r *http.Request, handler *arthundler.ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp) error {
-			ret := tmpObj.CheckLogin(r, input.GetString("token", ""), true)
-			if ret.IsLogin == false {
-				return errors.New("Failed in token check")
-			} else {
-				return nil
-			}
-		})
-		//		tmpObj.artHandlerObj.AddOnGetArtSuccess(func(w http.ResponseWriter, r *http.Request, h *arthundler.ArticleHandler, i *article.Article, o *miniprop.MiniProp) error {
-		//			pointerObj, pointerErr := tmpObj.getUserHundler(appengine.NewContext(r)).GetManager().GetPointerFromUserName(appengine.NewContext(r), i.GetUserName())
-		//			if pointerErr == nil {
-		//				o.SetString("userSign", pointerObj.GetSign())
-		//			}
-		//			return nil
-		//		})
-		//		tmpObj.artHandlerObj.GetBlobHandler().AddOnBlobRequest(func(w http.ResponseWriter, r *http.Request, input *miniprop.MiniProp, output *miniprop.MiniProp, h *blobhandler.BlobHandler) (map[string]string, error) {
-		//			ret := tmpObj.CheckLogin(r, input.GetString("token", ""), false)
-		//			if ret.IsLogin == false {
-		//				return map[string]string{}, errors.New("Failed in token check" + input.GetString("token", ""))
-		//			}
-		//			return map[string]string{"sst": ret.AccessTokenObj.GetLoginId()}, nil
-		//		})
 	}
 	return tmpObj.artHandlerObj
 }

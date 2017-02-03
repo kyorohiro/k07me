@@ -29,19 +29,12 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 	//
 	//
 	outputProp := miniprop.NewMiniProp()
-	errCall := obj.OnNewRequest(w, r, obj, inputProp, outputProp)
-	if nil != errCall {
-		obj.OnNewArtFailed(w, r, obj, inputProp, outputProp)
-		obj.HandleError(w, r, outputProp, ErrorCodeFailedToCheckAboutGetCalled, errCall.Error())
-		return
-	}
 	//
 	var artObj *ar.Article
 	if articleId != "" {
 		var artErr error
 		artObj, artErr = obj.GetManager().NewArticleFromArticleId(ctx, articleId)
 		if artErr != nil {
-			obj.OnNewArtFailed(w, r, obj, inputProp, outputProp)
 			obj.HandleError(w, r, outputProp, ErrorCodeFailedToCheckAboutGetCalled, artErr.Error())
 			return
 		}
@@ -62,32 +55,13 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//
-	errNew := obj.OnNewBeforeSave(w, r, obj, artObj, inputProp, outputProp)
-	if nil != errNew {
-		obj.OnNewArtFailed(w, r, obj, inputProp, outputProp)
-		obj.HandleError(w, r, outputProp, ErrorCodeFailedToCheckAboutGetCalled, errNew.Error())
-		return
-	}
-	//
 	nextArtObj, errSave := obj.GetManager().SaveUsrWithImmutable(ctx, artObj)
 	if errSave != nil {
-		obj.OnNewArtFailed(w, r, obj, inputProp, outputProp)
 		obj.HandleError(w, r, outputProp, ErrorCodeFailedToSave, errSave.Error())
 		return
 	}
 	propObj.SetPropString("", "articleId", nextArtObj.GetArticleId())
-	errOnSc := obj.OnNewArtSuccess(w, r, obj, nextArtObj, inputProp, outputProp)
-	if nil != errOnSc {
-		if nil != obj.GetManager().DeleteFromArticleId(ctx, artObj.GetArticleId(), "") {
-			Debug(ctx, "<GOMIDATA>articleId="+artObj.GetArticleId())
-		}
-		obj.OnNewArtFailed(w, r, obj, inputProp, outputProp)
-		obj.HandleError(w, r, outputProp, ErrorCodeFailedToCheckAboutGetCalled, errOnSc.Error())
-		return
-	}
-	///
-	// add tag
-	///
+
 	//	obj.tagMana.AddBasicTags(ctx, tags, "art://"+nextArtObj.GetGaeObjectKey().StringID(), nextArtObj.GetArticleId(), "")
 	w.WriteHeader(http.StatusOK)
 	w.Write(propObj.ToJson())

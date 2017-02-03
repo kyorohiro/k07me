@@ -26,30 +26,17 @@ func (obj *ArticleHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	var err error
 	//
 	//
-	errOnGAR := obj.OnGetArtRequest(w, r, obj, propObj)
-	if errOnGAR != nil {
-		obj.OnGetArtFailed(w, r, obj, propObj)
-		obj.HandleError(w, r, propObj, ErrorCodeNotFoundArticleId, errOnGAR.Error())
-		return
-	}
 	if sign != "" {
 		artObj, err = obj.GetManager().GetArticleFromArticleId(ctx, articleId, sign)
 	} else {
 		artObj, err = obj.GetManager().GetArticleFromPointer(ctx, articleId)
 	}
 	if err != nil {
-		obj.OnGetArtFailed(w, r, obj, propObj)
 		obj.HandleError(w, r, propObj, ErrorCodeNotFoundArticleId, "not found article")
 		return
 	}
 	if sign != "" {
 		w.Header().Set("Cache-Control", "public, max-age=2592000")
-	}
-	errOnGAS := obj.OnGetArtSuccess(w, r, obj, artObj, propObj)
-	if errOnGAS != nil {
-		obj.OnGetArtFailed(w, r, obj, propObj)
-		obj.HandleError(w, r, propObj, ErrorCodeNotFoundArticleId, errOnGAS.Error())
-		return
 	}
 	propObj.CopiedOver(miniprop.NewMiniPropFromMap(artObj.ToMap()))
 	w.Write(propObj.ToJson())

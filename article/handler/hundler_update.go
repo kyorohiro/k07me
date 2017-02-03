@@ -31,21 +31,12 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 
 	//
 	if articleId == "" {
-		obj.OnUpdateArtFailed(w, r, obj, inputProp, outputProp)
 		obj.HandleError(w, r, outputProp, ErrorCodeNotFoundArticleId, "Not Found Article")
-		return
-	}
-
-	errOnGe := obj.OnUpdateRequest(w, r, obj, inputProp, outputProp)
-	if nil != errOnGe {
-		obj.OnUpdateArtFailed(w, r, obj, inputProp, outputProp)
-		obj.HandleError(w, r, outputProp, ErrorCodeFailedToCheckAboutGetCalled, errOnGe.Error())
 		return
 	}
 
 	artObj, errGetArt := obj.GetManager().GetArticleFromPointer(ctx, articleId)
 	if errGetArt != nil {
-		obj.OnUpdateArtFailed(w, r, obj, inputProp, outputProp)
 		obj.HandleError(w, r, outputProp, ErrorCodeNotFoundArticleId, "Not Found Article")
 		return
 	}
@@ -72,17 +63,10 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 	//obj.tagMana.AddBasicTags(ctx, tags, "art://"+nextArtObj.GetGaeObjectKey().StringID(), artObj.GetArticleId(), "")
 
 	if errSave != nil {
-		obj.OnUpdateArtFailed(w, r, obj, inputProp, outputProp)
 		obj.HandleError(w, r, outputProp, ErrorCodeFailedToSave, errSave.Error())
 		return
 	} else {
 		propObj.SetPropString("", "articleId", artObj.GetArticleId())
-		errOnSc := obj.OnUpdateArtSuccess(w, r, obj, inputProp, outputProp)
-		if nil != errOnSc {
-			obj.OnUpdateArtFailed(w, r, obj, inputProp, outputProp)
-			obj.HandleError(w, r, outputProp, ErrorCodeFailedToCheckAboutGetCalled, errOnSc.Error())
-			return
-		}
 		w.WriteHeader(http.StatusOK)
 		w.Write(propObj.ToJson())
 	}

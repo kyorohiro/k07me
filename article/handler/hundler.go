@@ -28,7 +28,7 @@ type ArticleHandler struct {
 	artMana     *article.ArticleManager
 	blobHundler *blobhandler.BlobHandler
 	//	tagMana     *tag.TagManager
-	onEvents ArticleHandlerOnEvent
+	//	onEvents ArticleHandlerOnEvent
 }
 
 type ArticleHandlerConfig struct {
@@ -42,25 +42,6 @@ type ArticleHandlerConfig struct {
 	BlobSign        string
 	MemcachedOnly   bool
 	LengthHash      int
-}
-
-type ArticleHandlerOnEvent struct {
-	OnNewRequestList    []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp) error
-	OnNewBeforeSaveList []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, artObj *article.Article, input *miniprop.MiniProp, output *miniprop.MiniProp) error
-	OnNewArtFailedList  []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp)
-	OnNewArtSuccessList []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, artObj *article.Article, input *miniprop.MiniProp, output *miniprop.MiniProp) error
-	//
-	OnUpdateRequestList    []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp) error
-	OnUpdateArtFailedList  []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp)
-	OnUpdateArtSuccessList []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp) error
-	//
-	OnGetArtRequestList []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, output *miniprop.MiniProp) error
-	OnGetArtFailedList  []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, output *miniprop.MiniProp)
-	OnGetArtSuccessList []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, a *article.Article, output *miniprop.MiniProp) error
-	//
-	OnDeleteArtRequestList []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp) error
-	OnDeleteArtFailedList  []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp)
-	OnDeleteArtSuccessList []func(w http.ResponseWriter, r *http.Request, handler *ArticleHandler, input *miniprop.MiniProp, output *miniprop.MiniProp) error
 }
 
 func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
@@ -99,7 +80,7 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 		blobKind:    config.BlobKind,
 		artMana:     artMana,
 		//		tagMana:     tagMana,
-		onEvents: ArticleHandlerOnEvent{},
+		//		onEvents: ArticleHandlerOnEvent{},
 	}
 
 	//
