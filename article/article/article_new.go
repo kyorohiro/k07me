@@ -100,7 +100,6 @@ func (obj *ArticleManager) NewArticle(ctx context.Context) *Article {
 	ret.kind = obj.config.KindArticle
 	ret.gaeObject = &art
 	ret.gaeObjectKey = key
-	ret.gaeObject.RootGroup = obj.config.RootGroup
 	ret.gaeObject.Sign = sign
 	ret.gaeObject.Created = created
 	ret.gaeObject.Updated = created
@@ -128,7 +127,6 @@ func (obj *ArticleManager) NewArticleFromArticleId(ctx context.Context, articleI
 	ret.kind = obj.config.KindArticle
 	ret.gaeObject = &art
 	ret.gaeObjectKey = key
-	ret.gaeObject.RootGroup = obj.config.RootGroup
 	ret.gaeObject.Sign = sign
 	ret.gaeObject.Created = created
 	ret.gaeObject.Updated = created

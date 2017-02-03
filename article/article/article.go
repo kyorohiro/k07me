@@ -11,7 +11,6 @@ import (
 )
 
 type GaeObjectArticle struct {
-	RootGroup  string
 	UserName   string
 	Title      string   `datastore:",noindex"`
 	Tags       []string `datastore:"Tags.Tag"`

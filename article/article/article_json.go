@@ -12,7 +12,6 @@ import (
 //
 func (obj *Article) ToMap() map[string]interface{} {
 	return map[string]interface{}{
-		TypeRootGroup:  obj.gaeObject.RootGroup,
 		TypeUserName:   obj.gaeObject.UserName, //
 		TypeTitle:      obj.gaeObject.Title,    //
 		TypeTag:        obj.GetTags(),          //
@@ -52,7 +51,6 @@ func (obj *Article) ToJsonPublicOnly() []byte {
 func (userObj *Article) SetParamFromsMap(v map[string]interface{}) error {
 	propObj := miniprop.NewMiniPropFromMap(v)
 	//
-	userObj.gaeObject.RootGroup = propObj.GetString(TypeRootGroup, "")
 	userObj.gaeObject.UserName = propObj.GetString(TypeUserName, "")
 	userObj.gaeObject.Title = propObj.GetString(TypeTitle, "")
 	userObj.SetTags(propObj.GetPropStringList("", TypeTag, make([]string, 0)))
