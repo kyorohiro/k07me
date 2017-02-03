@@ -10,6 +10,12 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: FFArt
+  properties:
+  - name: ArticleId
+  - name: Updated
+    direction: desc
+
 - kind: FFArt-blob
   properties:
   - name: Name

@@ -10,7 +10,7 @@ import (
 
 	"crypto/rand"
 
-	minipointer "github.com/kyorohiro/k07me/pointer"
+	//	minipointer "github.com/kyorohiro/k07me/pointer"
 	miniprop "github.com/kyorohiro/k07me/prop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
@@ -25,8 +25,8 @@ type ArticleManagerConfig struct {
 	LengthHash     int
 }
 type ArticleManager struct {
-	pointerMgr *minipointer.PointerManager
-	config     ArticleManagerConfig
+	//	pointerMgr *minipointer.PointerManager
+	config ArticleManagerConfig
 }
 
 func NewArticleManager(config ArticleManagerConfig) *ArticleManager {
@@ -47,10 +47,10 @@ func NewArticleManager(config ArticleManagerConfig) *ArticleManager {
 	}
 	ret := new(ArticleManager)
 	ret.config = config
-	ret.pointerMgr = minipointer.NewPointerManager(minipointer.PointerManagerConfig{
-		RootGroup: config.RootGroup,
-		Kind:      config.KindPointer,
-	})
+	//	ret.pointerMgr = minipointer.NewPointerManager(minipointer.PointerManagerConfig{
+	//		RootGroup: config.RootGroup,
+	//		Kind:      config.KindPointer,
+	//	})
 	return ret
 }
 
@@ -58,9 +58,9 @@ func (obj *ArticleManager) GetKind() string {
 	return obj.config.KindArticle
 }
 
-func (obj *ArticleManager) GetPointerMgr() *minipointer.PointerManager {
-	return obj.pointerMgr
-}
+//func (obj *ArticleManager) GetPointerMgr() *minipointer.PointerManager {
+//	return obj.pointerMgr
+//}
 
 func (obj *ArticleManager) makeArticleId(created time.Time, secretKey string) string {
 	hashKey := obj.hashStr(fmt.Sprintf("p:%s;s:%s;c:%d;", obj.config.PrefixOfId, secretKey, created.UnixNano()))
@@ -117,19 +117,22 @@ func (obj *ArticleManager) SaveUsrWithImmutable(ctx context.Context, artObj *Art
 	if saveErr != nil {
 		return artObj, saveErr
 	}
-	pointerObj := obj.pointerMgr.GetPointerWithNewForRelayId(ctx, artObj.GetArticleId())
-	pointerObj.SetValue(nextArObj.GetArticleId())
-	pointerObj.SetSign(nextArObj.gaeObject.Sign)
-	pointerObj.SetOwner(artObj.GetArticleId())
-	savePointerErr := obj.pointerMgr.Save(ctx, pointerObj)
-	if savePointerErr != nil {
-		err := obj.DeleteFromArticleId(ctx, nextArObj.GetArticleId(), nextArObj.gaeObject.Sign)
-		if err != nil {
-			Debug(ctx, "<GOMIDATA>"+nextArObj.GetArticleId()+":"+nextArObj.gaeObject.Sign+"<GOMIDATA>")
-		}
+	//	pointerObj := obj.pointerMgr.GetPointerWithNewForRelayId(ctx, artObj.GetArticleId())
+	//	pointerObj.SetValue(nextArObj.GetArticleId())
+	//	pointerObj.SetSign(nextArObj.gaeObject.Sign)
+	//	pointerObj.SetOwner(artObj.GetArticleId())
+	//	savePointerErr := obj.pointerMgr.Save(ctx, pointerObj)
+	//  if savePointerErr != nil {
+	//	err := obj.DeleteFromArticleId(ctx, nextArObj.GetArticleId(), nextArObj.gaeObject.Sign)
+	//	if err != nil {
+	//		Debug(ctx, "<GOMIDATA>"+nextArObj.GetArticleId()+":"+nextArObj.gaeObject.Sign+"<GOMIDATA>")
+	//	}
+	//
+	//	return artObj, savePointerErr
+	//}
+	//
+	//
 
-		return artObj, savePointerErr
-	}
 	if artObj.gaeObject.Sign != "0" {
 		obj.DeleteFromArticleId(ctx, artObj.GetArticleId(), artObj.GetSign())
 	}

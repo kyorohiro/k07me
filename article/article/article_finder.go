@@ -20,15 +20,21 @@ type FoundArticles struct {
 
 func (obj *ArticleManager) FindArticleFromUserName(ctx context.Context, userName string, cursorSrc string, keyOnly bool) *FoundArticles {
 	q := datastore.NewQuery(obj.config.KindArticle)
-	q = q.Filter("RootGroup =", obj.config.RootGroup)
 	q = q.Filter("UserName =", userName) ////
+	q = q.Order("-Updated").Limit(obj.config.LimitOfFinding)
+	return obj.FindArticleFromQuery(ctx, q, cursorSrc, keyOnly)
+}
+
+//TypeArticleId
+func (obj *ArticleManager) FindArticleFromArticleId(ctx context.Context, articleId string, cursorSrc string, keyOnly bool) *FoundArticles {
+	q := datastore.NewQuery(obj.config.KindArticle)
+	q = q.Filter("ArticleId =", articleId) ////
 	q = q.Order("-Updated").Limit(obj.config.LimitOfFinding)
 	return obj.FindArticleFromQuery(ctx, q, cursorSrc, keyOnly)
 }
 
 func (obj *ArticleManager) FindArticleFromTag(ctx context.Context, tags []string, cursorSrc string, keyOnly bool) *FoundArticles {
 	q := datastore.NewQuery(obj.config.KindArticle)
-	q = q.Filter("RootGroup =", obj.config.RootGroup)
 	for _, tag := range tags {
 		q = q.Filter("Tags.Tag =", tag) ////
 	}
@@ -39,7 +45,6 @@ func (obj *ArticleManager) FindArticleFromTag(ctx context.Context, tags []string
 func (obj *ArticleManager) FindArticleFromProp(ctx context.Context, props map[string]string, cursorSrc string, keyOnly bool) *FoundArticles {
 	Debug(ctx, "======> Find Article target")
 	q := datastore.NewQuery(obj.config.KindArticle)
-	q = q.Filter("RootGroup =", obj.config.RootGroup)
 	for k, v := range props {
 		p := miniprop.NewMiniProp()
 		p.SetString(k, v)
@@ -52,7 +57,6 @@ func (obj *ArticleManager) FindArticleFromProp(ctx context.Context, props map[st
 
 func (obj *ArticleManager) FindArticleWithNewOrder(ctx context.Context, cursorSrc string, keyOnly bool) *FoundArticles {
 	q := datastore.NewQuery(obj.config.KindArticle)
-	q = q.Filter("RootGroup =", obj.config.RootGroup)
 	//	q = q.Order("-Updated").Limit(obj.limitOfFinding)
 
 	return obj.FindArticleFromQuery(ctx, q, cursorSrc, keyOnly)

@@ -5,7 +5,6 @@ import (
 
 	"errors"
 
-	minipointer "github.com/kyorohiro/k07me/pointer"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -146,6 +145,10 @@ func (obj *ArticleManager) NewGaeObjectKey(ctx context.Context, articleId string
 	return datastore.NewKey(ctx, kind, obj.makeStringId(articleId, sign), 0, nil)
 }
 
+func (obj *ArticleManager) NewGaeObjectKeyFromKeyString(ctx context.Context, key string) *datastore.Key {
+	return datastore.NewKey(ctx, obj.config.KindArticle, key, 0, nil)
+}
+
 //
 //
 //
@@ -160,38 +163,37 @@ func (mgrObj *ArticleManager) SaveOnOtherDB(ctx context.Context, obj *Article, k
 	return err
 }
 
-func (mgrObj *ArticleManager) DeleteFromArticleId(ctx context.Context, articleId string, sign string) error {
+func (mgrObj *ArticleManager) DeleteFromArticleId(ctx context.Context, articleId, sign string) error {
 	key := mgrObj.NewGaeObjectKey(ctx, articleId, sign, mgrObj.GetKind())
 	memcache.Delete(ctx, key.StringID())
 	return datastore.Delete(ctx, mgrObj.NewGaeObjectKey(ctx, articleId, sign, mgrObj.GetKind()))
 }
 
-func (mgrObj *ArticleManager) DeleteFromArticleIdWithPointer(ctx context.Context, articleId string) error {
-	artObj, pointerObj, _ := mgrObj.GetArticleFromPointer(ctx, articleId)
-	if artObj != nil {
-		deleteErr := mgrObj.DeleteFromArticleId(ctx, articleId, pointerObj.GetSign())
-		if deleteErr != nil {
-			return deleteErr
-		}
-	}
-	if pointerObj != nil {
-		return mgrObj.pointerMgr.DeletePointerFromObj(ctx, pointerObj)
+func (obj *ArticleManager) DeleteFromArticleIdWithPointer(ctx context.Context, articleId string) error {
+	//
+	key, e := obj.GetArticleKeyFromPointer(ctx, articleId)
+	if e == nil {
+		memcache.Delete(ctx, key)
+		return datastore.Delete(ctx, obj.NewGaeObjectKeyFromKeyString(ctx, key))
 	}
 	return nil
 }
 
-func (obj *ArticleManager) GetArticleFromPointer(ctx context.Context, articleId string) (*Article, *minipointer.Pointer, error) {
-	pointerObj, pointerErr := obj.pointerMgr.GetPointer(ctx, articleId, minipointer.TypePointer)
-	if pointerErr != nil {
-		return nil, nil, pointerErr
+func (obj *ArticleManager) GetArticleKeyFromPointer(ctx context.Context, articleId string) (string, error) {
+	founded := obj.FindArticleFromArticleId(ctx, articleId, "", true)
+	if len(founded.ArticleIds) <= 0 {
+		return "", errors.New("not found")
 	}
-	pointerArticleId := pointerObj.GetValue()
-	pointerSign := pointerObj.GetSign()
-
-	artObj, artErr := obj.GetArticleFromArticleId(ctx, pointerArticleId, pointerSign)
-	return artObj, pointerObj, artErr
+	return founded.ArticleIds[0], nil
 }
 
-func (obj *ArticleManager) GetPointerFromArticleId(ctx context.Context, articleId string) (*minipointer.Pointer, error) {
-	return obj.pointerMgr.GetPointer(ctx, articleId, minipointer.TypePointer)
+func (obj *ArticleManager) GetArticleFromPointer(ctx context.Context, articleId string) (*Article, error) {
+	Debug(ctx, "articleId = "+articleId)
+	founded := obj.FindArticleFromArticleId(ctx, articleId, "", false)
+	if len(founded.Articles) <= 0 {
+		Debug(ctx, "articleId e1")
+		return nil, errors.New("not found")
+	}
+	Debug(ctx, "articleId a1")
+	return founded.Articles[0], nil
 }

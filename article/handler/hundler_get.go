@@ -35,7 +35,7 @@ func (obj *ArticleHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	if sign != "" {
 		artObj, err = obj.GetManager().GetArticleFromArticleId(ctx, articleId, sign)
 	} else {
-		artObj, _, err = obj.GetManager().GetArticleFromPointer(ctx, articleId)
+		artObj, err = obj.GetManager().GetArticleFromPointer(ctx, articleId)
 	}
 	if err != nil {
 		obj.OnGetArtFailed(w, r, obj, propObj)
