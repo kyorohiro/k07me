@@ -14,7 +14,7 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 	// load param from json
 	inputProp := obj.GetInputProp(w, r)
 	articleId := inputProp.GetString("articleId", "")
-	//	ownerName := inputProp.GetString("ownerName", "")
+	ownerName := inputProp.GetString("userName", "")
 	title := inputProp.GetString("title", "")
 	//target := inputProp.GetString("target", "")
 	content := inputProp.GetString("content", "")
@@ -43,6 +43,7 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 	//
 
 	artObj.SetTitle(title)
+	artObj.SetUserName(ownerName)
 	//	artObj.SetProp("target", target)
 	artObj.SetCont(content)
 	artObj.SetTags(tags)

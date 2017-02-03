@@ -17,7 +17,7 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 	title := inputProp.GetString("title", "")
 	//z	target := inputProp.GetString("target", "")
 	content := inputProp.GetString("content", "")
-	ownerName := inputProp.GetString("ownerName", "")
+	ownerName := inputProp.GetString("userName", "")
 	tags := inputProp.GetPropStringList("", "tags", nil)
 	articleId := inputProp.GetPropString("", "articleId", "")
 	//
