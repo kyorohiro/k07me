@@ -59,9 +59,7 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 	}
 	//
 	//
-	_, errSave := obj.GetManager().SaveUsrWithImmutable(ctx, artObj)
-	//	obj.tagMana.DeleteTagsFromOwner(appengine.NewContext(r), articleId)
-	//obj.tagMana.AddBasicTags(ctx, tags, "art://"+nextArtObj.GetGaeObjectKey().StringID(), artObj.GetArticleId(), "")
+	_, errSave := obj.GetManager().SaveArticleWithImmutable(ctx, artObj)
 
 	if errSave != nil {
 		obj.HandleError(w, r, outputProp, ErrorCodeFailedToSave, errSave.Error())

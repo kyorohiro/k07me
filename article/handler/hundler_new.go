@@ -55,7 +55,7 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	//
-	nextArtObj, errSave := obj.GetManager().SaveUsrWithImmutable(ctx, artObj)
+	nextArtObj, errSave := obj.GetManager().SaveArticleWithImmutable(ctx, artObj)
 	if errSave != nil {
 		obj.HandleError(w, r, outputProp, ErrorCodeFailedToSave, errSave.Error())
 		return

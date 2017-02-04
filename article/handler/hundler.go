@@ -115,7 +115,7 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 		if dir == "" && fileName == "icon" {
 			artObj.SetIconUrl("key://" + i.GetBlobKey())
 			// todo
-			_, errSave := artHandlerObj.GetManager().SaveUsrWithImmutable(ctx, artObj)
+			_, errSave := artHandlerObj.GetManager().SaveArticleWithImmutable(ctx, artObj)
 			//			artHandlerObj.tagMana.DeleteTagsFromOwner(appengine.NewContext(r), nextArtObj.GetArticleId())
 			//			artHandlerObj.tagMana.AddBasicTags(ctx, nextArtObj.GetTags(), "art://"+nextArtObj.GetGaeObjectKey().StringID(), artObj.GetArticleId(), "")
 

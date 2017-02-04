@@ -85,7 +85,7 @@ func (obj *ArticleManager) NewArticle(ctx context.Context) *Article {
 	sign := "0"
 	for {
 		secretKey = obj.makeRandomId() + obj.makeRandomId()
-		articleId = obj.makeArticleId(created, secretKey)
+		articleId = obj.MakeArticleId(created, secretKey)
 		//stringId := obj.makeStringId(articleId, sign)
 		//
 		Debug(ctx, "<NewArticle>"+articleId)
@@ -140,7 +140,7 @@ func (obj *ArticleManager) NewGaeObjectKey(ctx context.Context, articleId string
 	if kind == "" {
 		kind = obj.config.KindArticle
 	}
-	return datastore.NewKey(ctx, kind, obj.makeStringId(articleId, sign), 0, nil)
+	return datastore.NewKey(ctx, kind, obj.MakeStringId(articleId, sign), 0, nil)
 }
 
 func (obj *ArticleManager) NewGaeObjectKeyFromKeyString(ctx context.Context, key string) *datastore.Key {

@@ -44,12 +44,12 @@ func (obj *ArticleManager) GetKind() string {
 	return obj.config.KindArticle
 }
 
-func (obj *ArticleManager) makeArticleId(created time.Time, secretKey string) string {
+func (obj *ArticleManager) MakeArticleId(created time.Time, secretKey string) string {
 	hashKey := obj.hashStr(fmt.Sprintf("s:%s;c:%d;", secretKey, created.UnixNano()))
 	return hashKey
 }
 
-func (obj *ArticleManager) makeStringId(articleId string, sign string) string {
+func (obj *ArticleManager) MakeStringId(articleId string, sign string) string {
 	propObj := miniprop.NewMiniProp()
 	propObj.SetString("i", articleId)
 	propObj.SetString("s", sign)
@@ -67,6 +67,33 @@ func (obj *ArticleManager) ExtractInfoFromStringId(stringId string) *StringIdInf
 		ArticleId: propObj.GetString("i", ""),
 		Sign:      propObj.GetString("s", ""),
 	}
+}
+
+func (obj *ArticleManager) SaveArticleWithImmutable(ctx context.Context, artObj *Article) (*Article, error) {
+	sign := strconv.Itoa(time.Now().Nanosecond())
+	nextArObj := obj.NewArticleFromArticle(ctx, artObj, sign)
+	nextArObj.SetUpdated(time.Now())
+	saveErr := nextArObj.saveOnDB(ctx)
+	if saveErr != nil {
+		return artObj, saveErr
+	}
+
+	if artObj.gaeObject.Sign != "0" {
+		obj.DeleteFromArticleId(ctx, artObj.GetArticleId(), artObj.GetSign())
+	}
+	return nextArObj, nil
+}
+
+func (obj *ArticleManager) GetLimitOfFinding() int {
+	return obj.config.LimitOfFinding
+}
+
+//
+//
+//
+
+func Debug(ctx context.Context, message string) {
+	log.Infof(ctx, message)
 }
 
 func (obj *ArticleManager) hash(v string) string {
@@ -89,27 +116,4 @@ func (obj *ArticleManager) makeRandomId() string {
 	var n uint64
 	binary.Read(rand.Reader, binary.LittleEndian, &n)
 	return strconv.FormatUint(n, 36)
-}
-
-func (obj *ArticleManager) SaveUsrWithImmutable(ctx context.Context, artObj *Article) (*Article, error) {
-	sign := strconv.Itoa(time.Now().Nanosecond())
-	nextArObj := obj.NewArticleFromArticle(ctx, artObj, sign)
-	nextArObj.SetUpdated(time.Now())
-	saveErr := nextArObj.saveOnDB(ctx)
-	if saveErr != nil {
-		return artObj, saveErr
-	}
-
-	if artObj.gaeObject.Sign != "0" {
-		obj.DeleteFromArticleId(ctx, artObj.GetArticleId(), artObj.GetSign())
-	}
-	return nextArObj, nil
-}
-
-func (obj *ArticleManager) GetLimitOfFinding() int {
-	return obj.config.LimitOfFinding
-}
-
-func Debug(ctx context.Context, message string) {
-	log.Infof(ctx, message)
 }
