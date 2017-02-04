@@ -160,8 +160,6 @@ func (obj *Article) SetUpdated(v time.Time) {
 	obj.gaeObject.Updated = v
 }
 
-//
-//
 func (obj *Article) GetPoint() float64 {
 	return obj.gaeObject.Point
 }
@@ -170,8 +168,6 @@ func (obj *Article) SetPoint(v float64) {
 	obj.gaeObject.Point = v
 }
 
-//
-//
 func (obj *Article) GetLat() float64 {
 	return obj.gaeObject.Lat
 }
@@ -188,8 +184,6 @@ func (obj *Article) SetLng(v float64) {
 	obj.gaeObject.Lng = v
 }
 
-//
-//
 func (obj *Article) GetProp(name string) string {
 	index := -1
 	for i, v := range obj.gaeObject.PropNames {
