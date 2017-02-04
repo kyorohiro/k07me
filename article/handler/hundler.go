@@ -21,7 +21,6 @@ const (
 )
 
 type ArticleHandler struct {
-	projectId   string
 	articleKind string
 	blobKind    string
 	pointerKind string
@@ -30,7 +29,6 @@ type ArticleHandler struct {
 }
 
 type ArticleHandlerConfig struct {
-	RootGroup       string
 	ArticleKind     string
 	PointerKind     string
 	BlobKind        string
@@ -43,9 +41,6 @@ type ArticleHandlerConfig struct {
 }
 
 func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
-	if config.RootGroup == "" {
-		config.RootGroup = "ffstyle"
-	}
 	if config.ArticleKind == "" {
 		config.ArticleKind = "ffart"
 	}
@@ -70,7 +65,6 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 	//
 	//
 	artHandlerObj := &ArticleHandler{
-		projectId:   config.RootGroup,
 		articleKind: config.ArticleKind,
 		blobKind:    config.BlobKind,
 		artMana:     artMana,
@@ -79,7 +73,6 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 	//
 	artHandlerObj.blobHundler = blobhandler.NewBlobHandler(config.BlobCallbackUrl, config.BlobSign,
 		miniblob.BlobManagerConfig{
-			RootGroup:              config.RootGroup,
 			Kind:                   config.BlobKind,
 			CallbackUrl:            config.BlobCallbackUrl,
 			PointerKind:            config.BlobPointerKind,

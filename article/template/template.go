@@ -93,7 +93,6 @@ func (tmpObj *ArtTemplate) GetArtHundlerObj(ctx context.Context) *arthundler.Art
 	if tmpObj.artHandlerObj == nil {
 		tmpObj.artHandlerObj = arthundler.NewArtHandler(
 			arthundler.ArticleHandlerConfig{
-				RootGroup:       tmpObj.config.GroupName,
 				ArticleKind:     tmpObj.config.KindBaseName,
 				BlobCallbackUrl: tmpObj.config.BasePath + UrlArtCallbackBlobUrl,
 				BlobSign:        appengine.VersionID(ctx),
