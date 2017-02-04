@@ -50,7 +50,7 @@ func (obj *ArticleHandler) HandleFindBase(w http.ResponseWriter, r *http.Request
 	q.WithLimitOfFinding(ctx, manager.GetLimitOfFinding())
 	foundObj = obj.GetManager().FindArticleFromQuery(ctx, q.GetQuery(), cursor, true)
 
-	propObj.SetPropStringList("", "keys", foundObj.ArticleKeys)
+	propObj.SetPropStringList("", "keys", foundObj.StringIds)
 	propObj.SetPropString("", "cursorOne", foundObj.CursorOne)
 	propObj.SetPropString("", "cursorNext", foundObj.CursorNext)
 	w.Write(propObj.ToJson())

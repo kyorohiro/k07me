@@ -179,19 +179,16 @@ func (obj *ArticleManager) DeleteFromArticleIdWithPointer(ctx context.Context, a
 
 func (obj *ArticleManager) GetArticleKeyFromPointer(ctx context.Context, articleId string) (string, error) {
 	founded := obj.FindArticleFromArticleId(ctx, articleId, "", true)
-	if len(founded.ArticleKeys) <= 0 {
+	if len(founded.StringIds) <= 0 {
 		return "", errors.New("not found")
 	}
-	return founded.ArticleKeys[0], nil
+	return founded.StringIds[0], nil
 }
 
 func (obj *ArticleManager) GetArticleFromPointer(ctx context.Context, articleId string) (*Article, error) {
-	Debug(ctx, "articleId = "+articleId)
 	founded := obj.FindArticleFromArticleId(ctx, articleId, "", false)
 	if len(founded.Articles) <= 0 {
-		Debug(ctx, "articleId e1")
 		return nil, errors.New("not found")
 	}
-	Debug(ctx, "articleId a1")
 	return founded.Articles[0], nil
 }

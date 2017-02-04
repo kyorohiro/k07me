@@ -8,10 +8,10 @@ import (
 // https://cloud.google.com/appengine/docs/go/config/indexconfig#updating_indexes
 
 type FoundArticles struct {
-	Articles    []*Article
-	ArticleKeys []string
-	CursorOne   string
-	CursorNext  string
+	Articles   []*Article
+	StringIds  []string
+	CursorOne  string
+	CursorNext string
 }
 
 func (obj *ArticleManager) FindArticleFromArticleId(ctx context.Context, articleId string, cursorSrc string, keyOnly bool) *FoundArticles {
@@ -58,10 +58,10 @@ func (obj *ArticleManager) FindArticleFromQuery(ctx context.Context, q *datastor
 	}
 	cursorNext = obj.makeCursorSrc(founds)
 	return &FoundArticles{
-		Articles:    retUser,
-		ArticleKeys: articleIds,
-		CursorNext:  cursorNext,
-		CursorOne:   cursorOne,
+		Articles:   retUser,
+		StringIds:  articleIds,
+		CursorNext: cursorNext,
+		CursorOne:  cursorOne,
 	}
 }
 
