@@ -27,8 +27,6 @@ type ArticleHandler struct {
 	pointerKind string
 	artMana     *article.ArticleManager
 	blobHundler *blobhandler.BlobHandler
-	//	tagMana     *tag.TagManager
-	//	onEvents ArticleHandlerOnEvent
 }
 
 type ArticleHandlerConfig struct {
@@ -69,7 +67,6 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 		LimitOfFinding: 20,
 		LengthHash:     config.LengthHash,
 	})
-	//	tagMana := tag.NewTagManager(config.TagKind, config.RootGroup)
 	//
 	//
 	artHandlerObj := &ArticleHandler{
@@ -77,8 +74,6 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 		articleKind: config.ArticleKind,
 		blobKind:    config.BlobKind,
 		artMana:     artMana,
-		//		tagMana:     tagMana,
-		//		onEvents: ArticleHandlerOnEvent{},
 	}
 
 	//
@@ -91,12 +86,6 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 			MemcachedOnlyInPointer: config.MemcachedOnly,
 			HashLength:             10,
 		})
-	//	artHandlerObj.blobHundler.AddOnBlobBeforeSave(func(w http.ResponseWriter, r *http.Request, p *miniprop.MiniProp, h *blobhandler.BlobHandler, i *miniblob.BlobItem) error {
-	//		dirSrc := r.URL.Query().Get("dir")
-	//		articlId := artHandlerObj.GetArticleIdFromDir(dirSrc)
-	//		i.SetOwner(articlId)
-	//		return nil
-	//	})
 	artHandlerObj.blobHundler.AddOnBlobComplete(func(w http.ResponseWriter, r *http.Request, o *miniprop.MiniProp, hh *blobhandler.BlobHandler, i *miniblob.BlobItem) error {
 		dirSrc := r.URL.Query().Get("dir")
 		articlId := artHandlerObj.GetArticleIdFromDir(dirSrc)
@@ -104,20 +93,15 @@ func NewArtHandler(config ArticleHandlerConfig) *ArticleHandler {
 		fileName := r.URL.Query().Get("file")
 		//
 		//
-		ctx := appengine.NewContext(r)
-		//Debug(ctx, "OnBlobComplete ::"+articlId+"::"+dir+"::"+fileName+"::")
-		artObj, errGet := artHandlerObj.GetManager().GetArticleFromPointer(ctx, articlId)
-		if errGet != nil {
-			//Debug(ctx, "From Pointer GEt ER "+articlId)
-			return errGet
-		}
-		//s	Debug(ctx, "=~====>> ICOM "+dir+"::"+fileName)
 		if dir == "" && fileName == "icon" {
+			ctx := appengine.NewContext(r)
+			artObj, errGet := artHandlerObj.GetManager().GetArticleFromPointer(ctx, articlId)
+			if errGet != nil {
+				return errGet
+			}
+
 			artObj.SetIconUrl("key://" + i.GetBlobKey())
-			// todo
 			_, errSave := artHandlerObj.GetManager().SaveArticleWithImmutable(ctx, artObj)
-			//			artHandlerObj.tagMana.DeleteTagsFromOwner(appengine.NewContext(r), nextArtObj.GetArticleId())
-			//			artHandlerObj.tagMana.AddBasicTags(ctx, nextArtObj.GetTags(), "art://"+nextArtObj.GetGaeObjectKey().StringID(), artObj.GetArticleId(), "")
 
 			if errSave != nil {
 				return errSave

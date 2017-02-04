@@ -19,7 +19,6 @@ func (obj *ArticleHandler) HandleDeleteBaseWithFile(w http.ResponseWriter, r *ht
 		obj.HandleError(w, r, outputObj, 2002, deleteFileErr.Error())
 		return
 	}
-	//	obj.tagMana.DeleteTagsFromOwner(appengine.NewContext(r), articleId)
 	err := obj.GetManager().DeleteFromArticleIdWithPointer(ctx, articleId)
 	if err != nil {
 		obj.HandleError(w, r, outputObj, ErrorCodeNotFoundArticleId, "not found article")
