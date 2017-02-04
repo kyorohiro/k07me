@@ -52,6 +52,27 @@ func (obj *MiniProp) GetProps(category string, defaultValue interface{}) interfa
 	}
 }
 
+func (obj *MiniProp) Contain(key string) bool {
+	return obj.ContainProp("", key)
+}
+
+func (obj *MiniProp) ContainProp(category string, key string) bool {
+	if category == "" {
+		_, ok := obj.prop[key]
+		return ok
+	} else {
+		v := obj.prop[category]
+		if v == nil {
+			return false
+		}
+		if obj.prop[category].(map[string]interface{})[key] == nil {
+			return false
+		}
+		_, ok := obj.prop[category].(map[string]interface{})[key]
+		return ok
+	}
+}
+
 func (obj *MiniProp) GetProp(category string, key string, defaultValue interface{}) interface{} {
 	if category == "" {
 		v := obj.prop[key]

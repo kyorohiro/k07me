@@ -184,6 +184,11 @@ func (obj *Article) SetLng(v float64) {
 	obj.gaeObject.Lng = v
 }
 
+func (obj *Article) ClearProp() {
+	obj.gaeObject.PropNames = nil
+	obj.gaeObject.PropValues = nil
+}
+
 func (obj *Article) GetProp(name string) string {
 	index := -1
 	for i, v := range obj.gaeObject.PropNames {

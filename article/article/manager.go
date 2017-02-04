@@ -21,6 +21,7 @@ type ArticleManagerConfig struct {
 	LimitOfFinding int
 	LengthHash     int
 }
+
 type ArticleManager struct {
 	config ArticleManagerConfig
 }
