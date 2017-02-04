@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 
 	miniprop "github.com/kyorohiro/k07me/prop"
-	//	"google.golang.org/appengine"
 )
 
 func (obj *ArticleHandler) GetArticleIdFromDir(dir string) string {

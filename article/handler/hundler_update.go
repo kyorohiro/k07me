@@ -16,35 +16,32 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 	articleId := inputProp.GetString("articleId", "")
 	ownerName := inputProp.GetString("userName", "")
 	title := inputProp.GetString("title", "")
-	//target := inputProp.GetString("target", "")
 	content := inputProp.GetString("content", "")
-	tags := inputProp.GetPropStringList("", "tags", make([]string, 0))
-	//
-	//
-	propKeys := inputProp.GetPropStringList("", "propKeys", make([]string, 0))
-	propValues := inputProp.GetPropStringList("", "propValues", make([]string, 0))
 	lat := inputProp.GetFloat("lat", -999.0)
 	lng := inputProp.GetFloat("lng", -999.0)
 	//
 	//
-	outputProp := miniprop.NewMiniProp()
+	tags := inputProp.GetPropStringList("", "tags", make([]string, 0))
+	propKeys := inputProp.GetPropStringList("", "propKeys", make([]string, 0))
+	propValues := inputProp.GetPropStringList("", "propValues", make([]string, 0))
 
 	//
+	//
+	//
 	if articleId == "" {
-		obj.HandleError(w, r, outputProp, ErrorCodeNotFoundArticleId, "Not Found Article")
+		obj.HandleError(w, r, miniprop.NewMiniProp(), ErrorCodeNotFoundArticleId, "Not Found Article")
 		return
 	}
 
 	artObj, errGetArt := obj.GetManager().GetArticleFromPointer(ctx, articleId)
 	if errGetArt != nil {
-		obj.HandleError(w, r, outputProp, ErrorCodeNotFoundArticleId, "Not Found Article")
+		obj.HandleError(w, r, miniprop.NewMiniProp(), ErrorCodeNotFoundArticleId, "Not Found Article")
 		return
 	}
 	//
 
 	artObj.SetTitle(title)
 	artObj.SetUserName(ownerName)
-	//	artObj.SetProp("target", target)
 	artObj.SetCont(content)
 	artObj.SetTags(tags)
 	artObj.SetLat(lat)
@@ -62,7 +59,7 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 	_, errSave := obj.GetManager().SaveArticleWithImmutable(ctx, artObj)
 
 	if errSave != nil {
-		obj.HandleError(w, r, outputProp, ErrorCodeFailedToSave, errSave.Error())
+		obj.HandleError(w, r, miniprop.NewMiniProp(), ErrorCodeFailedToSave, errSave.Error())
 		return
 	} else {
 		propObj.SetPropString("", "articleId", artObj.GetArticleId())
