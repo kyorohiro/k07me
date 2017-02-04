@@ -10,37 +10,27 @@ import (
 
 	"crypto/rand"
 
-	//	minipointer "github.com/kyorohiro/k07me/pointer"
 	miniprop "github.com/kyorohiro/k07me/prop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
 )
 
 type ArticleManagerConfig struct {
-	RootGroup      string
 	KindArticle    string
 	KindPointer    string
-	PrefixOfId     string
 	LimitOfFinding int
 	LengthHash     int
 }
 type ArticleManager struct {
-	//	pointerMgr *minipointer.PointerManager
 	config ArticleManagerConfig
 }
 
 func NewArticleManager(config ArticleManagerConfig) *ArticleManager {
-	if config.RootGroup == "" {
-		config.RootGroup = "FFArt"
-	}
 	if config.KindArticle == "" {
-		config.KindArticle = "FFArt"
+		config.KindArticle = "fa"
 	}
 	if config.KindPointer == "" {
-		config.KindPointer = config.KindArticle + "pointer"
-	}
-	if config.PrefixOfId == "" {
-		config.PrefixOfId = "ffart"
+		config.KindPointer = config.KindArticle + "-pointer"
 	}
 	if config.LimitOfFinding <= 0 {
 		config.LimitOfFinding = 20
@@ -55,8 +45,8 @@ func (obj *ArticleManager) GetKind() string {
 }
 
 func (obj *ArticleManager) makeArticleId(created time.Time, secretKey string) string {
-	hashKey := obj.hashStr(fmt.Sprintf("p:%s;s:%s;c:%d;", obj.config.PrefixOfId, secretKey, created.UnixNano()))
-	return "1-" + obj.config.PrefixOfId + "-" + hashKey
+	hashKey := obj.hashStr(fmt.Sprintf("s:%s;c:%d;", secretKey, created.UnixNano()))
+	return hashKey
 }
 
 func (obj *ArticleManager) makeStringId(articleId string, sign string) string {
