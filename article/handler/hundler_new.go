@@ -20,6 +20,7 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 	ownerName := inputProp.GetString("userName", "")
 	tags := inputProp.GetPropStringList("", "tags", nil)
 	articleId := inputProp.GetPropString("", "articleId", "")
+	iconUrl := inputProp.GetString("iconUrl", "")
 	//
 	//
 	propKeys := inputProp.GetPropStringList("", "propKeys", make([]string, 0))
@@ -47,6 +48,7 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 	artObj.SetTags(tags)
 	artObj.SetLat(lat)
 	artObj.SetLng(lng)
+	artObj.SetIconUrl(iconUrl)
 	//
 	//
 	if len(propKeys) == len(propValues) {

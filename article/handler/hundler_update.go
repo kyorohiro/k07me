@@ -58,6 +58,12 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 		lng := inputProp.GetFloat("lng", -999.0)
 		artObj.SetLng(lng)
 	}
+
+	if inputProp.Contain("iconUrl") {
+		iconUrl := inputProp.GetString("iconUrl", "")
+		artObj.SetIconUrl(iconUrl)
+	}
+
 	//
 	//
 	if inputProp.Contain("propKeys") {
