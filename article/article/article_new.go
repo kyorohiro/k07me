@@ -7,7 +7,6 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
-	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 )
 
@@ -21,18 +20,14 @@ func (obj *ArticleManager) NewArticleFromGaeObjectKey(ctx context.Context, key *
 	//
 	artObjFMem, errNewFMem := obj.NewArticleFromMemcache(ctx, k.StringID())
 	if errNewFMem == nil {
-		log.Infof(ctx, ">>>> new article Obj from memcache")
+		//Debug(ctx, ">>>> new article Obj from memcache")
 		return artObjFMem, nil
 	}
-	//
-	//
 	var gaeObj GaeObjectArticle
 	err := datastore.Get(ctx, k, &gaeObj)
 	if err != nil {
 		return nil, err
 	}
-	//
-	//
 	return obj.NewArticleFromGaeObject(ctx, k, &gaeObj), nil
 }
 
@@ -86,7 +81,6 @@ func (obj *ArticleManager) NewArticle(ctx context.Context) *Article {
 	for {
 		secretKey = obj.makeRandomId() + obj.makeRandomId()
 		articleId = obj.MakeArticleId(created, secretKey)
-		//stringId := obj.makeStringId(articleId, sign)
 		//
 		Debug(ctx, "<NewArticle>"+articleId)
 		key = obj.NewGaeObjectKey(ctx, articleId, sign, "")
@@ -116,7 +110,6 @@ func (obj *ArticleManager) NewArticleFromArticleId(ctx context.Context, articleI
 	var art GaeObjectArticle
 	sign := "0"
 
-	//articleId = obj.makeArticleId(created, secretKey)
 	key = obj.NewGaeObjectKey(ctx, articleId, sign, "")
 	err := datastore.Get(ctx, key, &art)
 	if err == nil {
@@ -143,8 +136,8 @@ func (obj *ArticleManager) NewGaeObjectKey(ctx context.Context, articleId string
 	return datastore.NewKey(ctx, kind, obj.MakeStringId(articleId, sign), 0, nil)
 }
 
-func (obj *ArticleManager) NewGaeObjectKeyFromKeyString(ctx context.Context, key string) *datastore.Key {
-	return datastore.NewKey(ctx, obj.config.KindArticle, key, 0, nil)
+func (obj *ArticleManager) NewGaeObjectKeyFromStringId(ctx context.Context, stringId string) *datastore.Key {
+	return datastore.NewKey(ctx, obj.config.KindArticle, stringId, 0, nil)
 }
 
 //
@@ -167,12 +160,16 @@ func (mgrObj *ArticleManager) DeleteFromArticleId(ctx context.Context, articleId
 	return datastore.Delete(ctx, mgrObj.NewGaeObjectKey(ctx, articleId, sign, mgrObj.GetKind()))
 }
 
+///
+///
+///
+///
 func (obj *ArticleManager) DeleteFromArticleIdWithPointer(ctx context.Context, articleId string) error {
 	//
 	key, e := obj.GetArticleKeyFromPointer(ctx, articleId)
 	if e == nil {
 		memcache.Delete(ctx, key)
-		return datastore.Delete(ctx, obj.NewGaeObjectKeyFromKeyString(ctx, key))
+		return datastore.Delete(ctx, obj.NewGaeObjectKeyFromStringId(ctx, key))
 	}
 	return nil
 }
