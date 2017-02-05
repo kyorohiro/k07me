@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/kyorohiro/k07me/oauth/twitter"
-	minipointer "github.com/kyorohiro/k07me/pointer"
+	//	minipointer "github.com/kyorohiro/k07me/pointer"
 	miniprop "github.com/kyorohiro/k07me/prop"
 	minisession "github.com/kyorohiro/k07me/session"
 	miniuser "github.com/kyorohiro/k07me/user/user"
@@ -51,9 +51,8 @@ func (obj *UserHandler) NewTwitterHandlerObj(config twitter.TwitterOAuthConfig) 
 	return twitterHandlerObj
 }
 
-
 func (obj *UserHandler) LoginRegistFromTwitter(ctx context.Context, screenName string, userId string, oauthToken string) (*miniuser.User, error) {
-	return obj.LoginRegistFromSNS(ctx, screenName, userId, oauthToken, minipointer.TypeTwitter)
+	return obj.LoginRegistFromSNS(ctx, screenName, userId, oauthToken, "twitter")
 }
 
 func (obj *UserHandler) LoginRegistFromSNS(ctx context.Context, screenName string, userId string, //
