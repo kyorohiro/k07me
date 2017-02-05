@@ -23,8 +23,8 @@ func (obj *UserManager) SaveUserWithImmutable(ctx context.Context, userObj *User
 }
 
 func (obj *UserManager) GetUserFromKey(ctx context.Context, stringId string) (*User, error) {
-	Debug(ctx, "GetUserFromKey :"+stringId)
+	// Debug(ctx, "GetUserFromKey :"+stringId)
 	keyInfo := obj.GetUserKeyInfo(stringId)
-	Debug(ctx, "GetUserFromKey :"+keyInfo.UserName+" : ")
+	// Debug(ctx, "GetUserFromKey :"+keyInfo.UserName+" : ")
 	return obj.GetUserFromUserName(ctx, keyInfo.UserName)
 }

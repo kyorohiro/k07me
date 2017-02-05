@@ -13,6 +13,10 @@ import (
 	miniprop "github.com/kyorohiro/k07me/prop"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/log"
+
+	"encoding/json"
+
+	"google.golang.org/appengine/memcache"
 )
 
 type ArticleManagerConfig struct {
@@ -82,6 +86,7 @@ func (obj *ArticleManager) SaveArticleWithImmutable(ctx context.Context, artObj 
 	if artObj.gaeObject.Sign != "0" {
 		obj.DeleteFromArticleId(ctx, artObj.GetArticleId(), artObj.GetSign())
 	}
+	obj.SaveSignCache(ctx, nextArObj.GetArticleId(), sign)
 	return nextArObj, nil
 }
 
@@ -117,4 +122,37 @@ func (obj *ArticleManager) makeRandomId() string {
 	var n uint64
 	binary.Read(rand.Reader, binary.LittleEndian, &n)
 	return strconv.FormatUint(n, 36)
+}
+
+/**
+ *
+ *
+ */
+func (obj *ArticleManager) SaveSignCache(ctx context.Context, key, value string) {
+	if value == "" {
+		memcache.Delete(ctx, key)
+	} else {
+		sk, _ := json.Marshal(map[string]interface{}{
+			"k": obj.config.KindPointer,
+			"n": key,
+		})
+
+		memcache.Set(ctx, &memcache.Item{
+			Key:   string(sk),
+			Value: []byte(value),
+		})
+	}
+}
+
+func (obj *ArticleManager) LoadSignCache(ctx context.Context, key string) (string, error) {
+	sk, _ := json.Marshal(map[string]interface{}{
+		"k": obj.config.KindPointer,
+		"n": key,
+	})
+	item, err := memcache.Get(ctx, string(sk))
+	if err != nil {
+		return "", err
+	}
+
+	return string(item.Value), nil
 }

@@ -154,38 +154,61 @@ func (mgrObj *ArticleManager) SaveOnOtherDB(ctx context.Context, obj *Article, k
 	return err
 }
 
+///
+///
+///
 func (mgrObj *ArticleManager) DeleteFromArticleId(ctx context.Context, articleId, sign string) error {
 	key := mgrObj.NewGaeObjectKey(ctx, articleId, sign, mgrObj.GetKind())
 	memcache.Delete(ctx, key.StringID())
+	mgrObj.SaveSignCache(ctx, articleId, "")
 	return datastore.Delete(ctx, mgrObj.NewGaeObjectKey(ctx, articleId, sign, mgrObj.GetKind()))
 }
 
-///
-///
-///
-///
 func (obj *ArticleManager) DeleteFromArticleIdWithPointer(ctx context.Context, articleId string) error {
 	//
 	key, e := obj.GetArticleKeyFromPointer(ctx, articleId)
 	if e == nil {
-		memcache.Delete(ctx, key)
-		return datastore.Delete(ctx, obj.NewGaeObjectKeyFromStringId(ctx, key))
+		stringIdInfo := obj.ExtractInfoFromStringId(key)
+		return obj.DeleteFromArticleId(ctx, stringIdInfo.ArticleId, stringIdInfo.Sign)
 	}
 	return nil
 }
 
 func (obj *ArticleManager) GetArticleKeyFromPointer(ctx context.Context, articleId string) (string, error) {
+	sign, e := obj.LoadSignCache(ctx, articleId)
+	if e == nil && sign != "" {
+		return obj.MakeStringId(articleId, sign), nil
+	}
+	//
+	//
+
 	founded := obj.FindArticleFromArticleId(ctx, articleId, "", true)
 	if len(founded.StringIds) <= 0 {
 		return "", errors.New("not found")
 	}
-	return founded.StringIds[0], nil
+	key := founded.StringIds[0]
+	stringIdInfo := obj.ExtractInfoFromStringId(key)
+	obj.SaveSignCache(ctx, stringIdInfo.ArticleId, stringIdInfo.Sign)
+	return key, nil
 }
 
 func (obj *ArticleManager) GetArticleFromPointer(ctx context.Context, articleId string) (*Article, error) {
+	sign, e := obj.LoadSignCache(ctx, articleId)
+	if e == nil && sign != "" {
+		v, ee := obj.GetArticleFromArticleId(ctx, articleId, sign)
+		if ee == nil {
+			return v, ee
+		}
+		obj.SaveSignCache(ctx, articleId, "")
+	}
+	//
+	//
 	founded := obj.FindArticleFromArticleId(ctx, articleId, "", false)
 	if len(founded.Articles) <= 0 {
 		return nil, errors.New("not found")
 	}
+	key := founded.StringIds[0]
+	stringIdInfo := obj.ExtractInfoFromStringId(key)
+	obj.SaveSignCache(ctx, stringIdInfo.ArticleId, stringIdInfo.Sign)
 	return founded.Articles[0], nil
 }
