@@ -21,6 +21,7 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 	tags := inputProp.GetPropStringList("", "tags", nil)
 	articleId := inputProp.GetPropString("", "articleId", "")
 	iconUrl := inputProp.GetString("iconUrl", "")
+	info := inputProp.GetString("info", "")
 	//
 	//
 	propKeys := inputProp.GetPropStringList("", "propKeys", make([]string, 0))
@@ -49,6 +50,7 @@ func (obj *ArticleHandler) HandleNew(w http.ResponseWriter, r *http.Request) {
 	artObj.SetLat(lat)
 	artObj.SetLng(lng)
 	artObj.SetIconUrl(iconUrl)
+	artObj.SetInfo(info)
 	//
 	//
 	if len(propKeys) == len(propValues) {

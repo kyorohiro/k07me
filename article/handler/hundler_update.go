@@ -44,6 +44,11 @@ func (obj *ArticleHandler) HandleUpdate(w http.ResponseWriter, r *http.Request) 
 		artObj.SetCont(content)
 	}
 
+	if inputProp.Contain("info") {
+		content := inputProp.GetString("info", "")
+		artObj.SetInfo(content)
+	}
+
 	if inputProp.Contain("tags") {
 		tags := inputProp.GetPropStringList("", "tags", make([]string, 0))
 		artObj.SetTags(tags)
